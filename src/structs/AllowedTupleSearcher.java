@@ -1,8 +1,7 @@
 package structs;
-import ilog.concert.IloException;
-import ilog.concert.IloIntExpr;
-import ilog.concert.IloIntervalVar;
+import ilog.concert.*;
 import ilog.cp.IloCP;
+import java.util.*;
 
 public class AllowedTupleSearcher {
     private IloCP solver;
@@ -15,10 +14,6 @@ public class AllowedTupleSearcher {
         this.allowedTuple = new IloIntervalVar[constraints.length];
         this.size = size;
         stateModel();
-    }
-
-    public IloCP getSolver() {
-        return solver;
     }
 
     private void stateModel() {
@@ -51,9 +46,9 @@ public class AllowedTupleSearcher {
     }
 
     public void displaySolution(int[] sol, int nb){
-        System.out.println("+++ Solution " + nb + " +++");
+        System.out.println("+++ Solution " + nb + " : " + Arrays.toString(sol) + " +++");
         for (int i = 0; i < sol.length; i++){
-            System.out.println("\t" + i + "-th bloc starts at " + sol[i] + " and ends at " + (sol[i] + constraints[i]) + ".");
+            System.out.println("\t" + i + "-th bloc starts at " + sol[i] + " and ends at " + (sol[i] + constraints[i] - 1) + ".");
         }
     }
 

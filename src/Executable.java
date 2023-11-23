@@ -1,7 +1,5 @@
 import structs.*;
 
-import java.util.Arrays;
-
 public class Executable {
     public static void main(String[] args) {
         int size = 15;
@@ -10,7 +8,6 @@ public class Executable {
     }
 
     public static void resolution(int[] constraints, int size){
-
         AllowedTupleSearcher ats = new AllowedTupleSearcher(constraints, size);
         ats.initEnumeration();
         int[] sol = null;
@@ -23,5 +20,7 @@ public class Executable {
             }
         } while(sol != null);
         ats.end();
+
+        System.out.println("Number of solutions found : " + nb_sols);
     }
 }
