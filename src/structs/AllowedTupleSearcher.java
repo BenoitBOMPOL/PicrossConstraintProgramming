@@ -85,6 +85,32 @@ public class AllowedTupleSearcher {
         return sol;
     }
 
+    public int count_sols(){
+        int count = 0;
+        initEnumeration();
+        int[] sol = solve();
+        while (sol != null){
+            count += 1;
+            sol = solve();
+        }
+        return count;
+    }
+
+    public int[][] getAllSolutions(){
+        int nb_solutions = count_sols();
+        int[][] allsolutions = new int[nb_solutions][constraints.length];
+        initEnumeration();
+        int[] sol = solve();
+        int sol_id = 0;
+        while (sol != null){
+            allsolutions[sol_id] = sol;
+            sol_id += 1;
+            sol = solve();
+        }
+        end();
+        return allsolutions;
+    }
+
     public void end() {
         solver.end();
     }

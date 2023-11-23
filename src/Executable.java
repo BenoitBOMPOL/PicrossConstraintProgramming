@@ -7,7 +7,12 @@ public class Executable {
         int row_size = 15;
         int[] constaints = {3, 4, 2};
 
-        resolution(constaints, row_size);
+        AllowedTupleSearcher ats = new AllowedTupleSearcher(constaints, row_size);
+        int[][] allSolutions = ats.getAllSolutions();
+        for (int sol_id = 0; sol_id < allSolutions.length; sol_id++){
+            System.out.println("Solution no." + sol_id + " : " + Arrays.toString(allSolutions[sol_id]));
+        }
+
 
         /**
             picrossInstance bird = new picrossInstance("./picross/bird.px");
@@ -24,20 +29,4 @@ public class Executable {
 
     }
 
-    public static void resolution(int[] constraints, int size){
-        AllowedTupleSearcher ats = new AllowedTupleSearcher(constraints, size);
-        ats.initEnumeration();
-        int[] sol = ats.solve();
-        int nb_sols = 0;
-
-        while (sol != null){
-            ats.displaySolution(sol, nb_sols);
-            nb_sols += 1;
-            sol = ats.solve();
-        }
-
-        ats.end();
-
-        System.out.println("Number of solutions found : " + nb_sols);
-    }
 }
