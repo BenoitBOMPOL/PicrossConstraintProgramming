@@ -1,25 +1,12 @@
 # fantastic-eureka
 Solving Picross using Constraint-Programming tools
 
-> .pcross file
+[![Generic badge](https://img.shields.io/badge/PICROSS-DONE-chartreuse.svg)](https://shields.io/)
+- Enumerating tuples (independent of other constraints)
 
-\# 1-line comment
+[![Generic badge](https://img.shields.io/badge/PICROSS-FIXME-orange.svg)](https://shields.io/)
+- Removing duplicates in the enumeration of tuples
 
-nb_rows,nb_columns
 
-constraint_row_1
-
-...
-
-...
-
-constaint_row_n
-
-constaint_col_1
-
-...
-
-...
-
-constaint_col_m
-
+[![Generic badge](https://img.shields.io/badge/PICROSS-TODO-informational.svg)](https://shields.io/)
+- Adding the _link_ between row and column constraints
