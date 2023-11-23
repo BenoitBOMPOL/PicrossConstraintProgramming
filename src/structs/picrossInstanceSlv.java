@@ -7,6 +7,7 @@ public class picrossInstanceSlv {
     private int[][][] row_allowed_tuples;
     private int[][][] col_allowed_tuples;
 
+
     public picrossInstance getInstance() {
         return instance;
     }
@@ -36,7 +37,4 @@ public class picrossInstanceSlv {
             col_allowed_tuples[col_id] = col_search.getAllSolutions();
         }
     }
-
-
-
 }
