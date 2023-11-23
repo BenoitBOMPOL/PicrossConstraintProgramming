@@ -46,14 +46,22 @@ public class AllowedTupleSearcher {
     }
 
     public void displaySolution(int[] sol, int nb){
-        System.out.println("+++ Solution " + nb + " : " + Arrays.toString(sol) + " +++");
+        System.out.println("+++ Solution " + nb + " under constraints " + Arrays.toString(constraints) + " and size " + size + ".");
         for (int i = 0; i < sol.length; i++){
-            System.out.println("\t" + i + "-th bloc starts at " + sol[i] + " and ends at " + (sol[i] + constraints[i] - 1) + ".");
+            System.out.print("\t" + i + "-th bloc : [");
+            for (int j = 0; j < constraints[i]; j++){
+                System.out.print(sol[i] + j);
+                if (j + 1 < constraints[i]){
+                    System.out.print(",");
+                }
+            }
+            System.out.println("]");
         }
     }
 
     public void initEnumeration() {
         try {
+            solver.propagate();
             solver.startNewSearch();
         } catch (IloException e) {
             e.printStackTrace();
