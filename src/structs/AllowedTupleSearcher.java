@@ -1,4 +1,5 @@
 package structs;
+
 import ilog.concert.*;
 import ilog.cp.IloCP;
 import java.util.*;
@@ -7,11 +8,12 @@ public class AllowedTupleSearcher {
     private IloCP solver;
     private int size;          // Size of the row, column concerned
     private int[] constraints; // Either row constraint or column constraint
-    private IloIntervalVar[] allowedTuple;
+    //private IloIntervalVar[] allowedTuple;
+    private IloIntVar[] start;
 
     public AllowedTupleSearcher(int[] constraints, int size){
         this.constraints = constraints;
-        this.allowedTuple = new IloIntervalVar[constraints.length];
+        this.start = new IloIntVar[constraints.length];
         this.size = size;
         stateModel();
     }
@@ -24,20 +26,23 @@ public class AllowedTupleSearcher {
             solver.setParameter(IloCP.IntParam.Workers, 1);
 
             for (int i = 0; i < constraints.length; i++){
-                allowedTuple[i] = solver.intervalVar(constraints[i], "C[" + i + "]");
+                this.start[i] = solver.intVar(0,size-1, "C[" + i + "]");
             }
 
             for (int i = 0; i < constraints.length - 1; i++){
                 // Ensures no overlap
                 solver.add(solver.ge(
-                        solver.startOf(allowedTuple[i + 1]),
-                        solver.sum(1, solver.endOf(allowedTuple[i]))
-                ));
+                        this.start[i + 1],
+                        solver.sum(1 + constraints[i], this.start[i]))
+                );
             }
 
-            for (int j = 0; j < constraints.length; j++){
-                // Ensures each bloc ends before (stricly !) the end of the row
-                solver.add(solver.ge(size, solver.endOf(allowedTuple[j])));
+            for (int i = 0; i < constraints.length; i++){
+                // Ensures ends before ending date
+                solver.add(solver.le(
+                        solver.sum(this.start[i], constraints[i]),
+                        size
+                ));
             }
 
         } catch (IloException e) {
@@ -61,7 +66,6 @@ public class AllowedTupleSearcher {
 
     public void initEnumeration() {
         try {
-            solver.propagate();
             solver.startNewSearch();
         } catch (IloException e) {
             e.printStackTrace();
@@ -76,7 +80,7 @@ public class AllowedTupleSearcher {
             if (solver.next()) {
                 sol = new int[constraints.length];
                 for (int i = 0; i < constraints.length; i++) {
-                    sol[i] = solver.getStart(allowedTuple[i]);
+                    sol[i] = (int) solver.getValue(start[i]);
                 }
             }
         } catch (IloException e){
@@ -112,6 +116,12 @@ public class AllowedTupleSearcher {
     }
 
     public void end() {
+        try {
+            solver.printInformation();
+        } catch (IloException e) {
+            e.printStackTrace();
+        }
         solver.end();
     }
+
 }
