@@ -29,7 +29,7 @@ public class picrossInstance {
         BufferedReader bread = new BufferedReader(new FileReader(pcross_file));
 
         String chars;
-        Boolean definedims = false;
+        boolean definedims = false;
         int count_rowconstraint = 0;
         int count_colconstraint = 0;
         
