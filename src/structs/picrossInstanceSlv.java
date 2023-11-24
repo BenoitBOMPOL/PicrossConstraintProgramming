@@ -80,6 +80,7 @@ public class picrossInstanceSlv {
                 solver.add(solver.allowedAssignments(effectiveCols[col_id], cols[col_id]));
             }
 
+            // TODO
         } catch (IloException e){
             e.printStackTrace();
         }
