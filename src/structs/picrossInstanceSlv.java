@@ -1,6 +1,9 @@
 package structs;
 import ilog.cp.IloCP;
 import ilog.concert.*;
+
+import java.util.Arrays;
+
 public class picrossInstanceSlv {
     private IloCP solver;
     private picrossInstance instance;
@@ -98,6 +101,39 @@ public class picrossInstanceSlv {
             e.printStackTrace();
         }
     }
+
+    // La solution est récupérée depuis eff_row_patterns
+
+    public int[][] solve(){
+        int[][] sol = null;
+        try{
+            if (solver.next()){
+                sol = new int[getInstance().getNb_rows()][];
+                for (int r_id = 0; r_id < getInstance().getNb_rows(); r_id++){
+                    int nb_constraints = instance.getRow_constraints(r_id).length;
+                    sol[r_id] = new int[nb_constraints];
+                    for (int cst = 0; cst < nb_constraints; cst++){
+                        sol[r_id][cst] = (int) solver.getValue(eff_row_pattern[r_id][cst]);
+                    }
+                }
+            }
+        } catch (IloException e){
+            e.printStackTrace();
+        }
+        return sol;
+    }
+
+    public void displaySolution(int[][] sol){
+        System.out.println("+++ Solution obtained +++");
+        for (int r_id = 0; r_id < instance.getNb_rows(); r_id++){
+            System.out.println("Row no. " + r_id + " : ");
+            int nb_constraints = instance.getRow_constraints(r_id).length;
+            for (int c = 0; c < nb_constraints; c++){
+                System.out.println("\t Start bloc no." + c + " of size " + instance.getRow_constraints(r_id)[c] + " at pos. " + sol[r_id][c] + ".");
+            }
+        }
+    }
+
 
     public void initEnumeration() {
         try {
