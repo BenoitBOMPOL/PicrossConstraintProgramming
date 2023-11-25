@@ -3,6 +3,7 @@ Solving Picross using Constraint-Programming tools
 
 [![Generic badge](https://img.shields.io/badge/PICROSS-DONE-chartreuse.svg)](https://shields.io/)
 - Enumerating tuples (independent of other constraints)
+- Creating the solver instance for a picross grid
 
 [![Generic badge](https://img.shields.io/badge/PICROSS-FIXME-orange.svg)](https://shields.io/)
 
