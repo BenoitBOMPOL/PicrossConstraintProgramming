@@ -2,9 +2,9 @@ package structs;
 import java.io.*;
 import java.util.Arrays;
 
-public class picrossInstance {
-    private int nb_rows;
-    private int nb_cols;
+public class picross {
+    private int nb_rows;    // Numbers of rows in the picross
+    private int nb_cols;    // Numbers of cols in the picross
     private int[][] row_constraints;
     private int[][] col_constraints;
 
@@ -24,7 +24,7 @@ public class picrossInstance {
         return row_constraints[i];
     }
 
-    public picrossInstance(String filename) throws Exception{
+    public picross(String filename) throws Exception{
         File pcross_file = new File(filename);
         BufferedReader bread = new BufferedReader(new FileReader(pcross_file));
 
@@ -35,6 +35,7 @@ public class picrossInstance {
         
         while ((chars = bread.readLine()) != null){
             if (!definedims){
+                // Getting numbers of rows and lines in the first line of the file
                 this.nb_rows = Integer.parseInt(chars.split(",")[0]);
                 this.nb_cols = Integer.parseInt(chars.split(",")[1]);
 
@@ -43,6 +44,7 @@ public class picrossInstance {
                 
                 definedims = true;
             } else{
+                // Getting each constraint
                 String[] str_constraints = chars.split(",");
                 if (count_rowconstraint < nb_rows){
                     row_constraints[count_rowconstraint] = new int[str_constraints.length];
@@ -63,7 +65,7 @@ public class picrossInstance {
     }
 
     public static void main(String[] args) throws Exception {
-        picrossInstance bird = new picrossInstance("./picross/bird.px");
+        picross bird = new picross("./picross/bird.px");
         System.out.println("There are " + bird.getNb_rows() + " rows and " + bird.getNb_cols() + " columns.");
         System.out.println("+++ Constraint on rows +++");
         for (int i = 0; i < bird.getNb_rows(); i++){

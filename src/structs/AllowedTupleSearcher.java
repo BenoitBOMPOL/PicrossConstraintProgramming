@@ -6,10 +6,21 @@ import java.util.*;
 
 public class AllowedTupleSearcher {
     private IloCP solver;
-    private int size;          // Size of the row, column concerned
-    private int[] constraints; // Either row constraint or column constraint
-    //private IloIntervalVar[] allowedTuple;
+    private final int size;
+    private final int[] constraints;
     private IloIntVar[] start;
+
+    public int getSize() {
+        return size;
+    }
+
+    public int[] getConstraints() {
+        return constraints;
+    }
+
+    public int get_ith_constraint(int i){
+        return constraints[i];
+    }
 
     public AllowedTupleSearcher(int[] constraints, int size){
         this.constraints = constraints;
@@ -25,20 +36,22 @@ public class AllowedTupleSearcher {
             solver.setParameter(IloCP.IntParam.SearchType, IloCP.ParameterValues.DepthFirst);
             solver.setParameter(IloCP.IntParam.Workers, 1);
 
+            // Creation of the variables
             for (int i = 0; i < constraints.length; i++){
                 this.start[i] = solver.intVar(0,size-1, "C[" + i + "]");
             }
 
+            // Adding constraints
+            // Constraint 1 : "Better" overlap
             for (int i = 0; i < constraints.length - 1; i++){
-                // Ensures no overlap
                 solver.add(solver.ge(
                         this.start[i + 1],
                         solver.sum(1 + constraints[i], this.start[i]))
                 );
             }
 
+            // Ensuring that each block ends before the size of the line
             for (int i = 0; i < constraints.length; i++){
-                // Ensures ends before ending date
                 solver.add(solver.le(
                         solver.sum(this.start[i], constraints[i]),
                         size
@@ -50,17 +63,10 @@ public class AllowedTupleSearcher {
         }
     }
 
-    public void displaySolution(int[] sol, int nb){
-        System.out.println("+++ Solution " + nb + " under constraints " + Arrays.toString(constraints) + " and size " + size + ".");
-        for (int i = 0; i < sol.length; i++){
-            System.out.print("\t" + i + "-th bloc : [");
-            for (int j = 0; j < constraints[i]; j++){
-                System.out.print(sol[i] + j);
-                if (j + 1 < constraints[i]){
-                    System.out.print(",");
-                }
-            }
-            System.out.println("]");
+    public void displaySolution(int[][] sol, int sol_no){
+        System.out.println("+++ Solution " + sol_no + " under constraints " + Arrays.toString(constraints) + " and size " + size + ".");
+        for (int c = 0; c < constraints.length; c++){
+            System.out.println("\tBloc no. " + c + " : " + Arrays.toString(sol[c]));
         }
     }
 
@@ -72,15 +78,25 @@ public class AllowedTupleSearcher {
         }
     }
 
-    // sol[i] contains the position of the first completed
-    // cell of the i-th constraint in the tuple
-    public int[] solve(){
-        int[] sol = null;
-        try {
-            if (solver.next()) {
-                sol = new int[constraints.length];
-                for (int i = 0; i < constraints.length; i++) {
-                    sol[i] = (int) solver.getValue(start[i]);
+    /**
+     * sol[i][j] is an integer variable (0, 1)
+     *  sol[i][j] == 1 if the i-th constraint is "active" at position j
+     */
+    public int[][] solve(){
+        int[][] sol = null;
+        try{
+            if (solver.next()){
+                sol = new int[constraints.length][size];
+                for (int i = 0; i < constraints.length; i++){
+                    int start_cst_i = (int) solver.getValue(start[i]);
+                    for (int j = 0; j < size; j++){
+                        if ((j >= start_cst_i) && (j < start_cst_i + constraints[i])){
+                            sol[i][j] = 1;
+                        } else {
+                            sol[i][j] = 0;
+                        }
+                    }
+
                 }
             }
         } catch (IloException e){
@@ -92,7 +108,7 @@ public class AllowedTupleSearcher {
     public int count_sols(){
         int count = 0;
         initEnumeration();
-        int[] sol = solve();
+        int[][] sol = solve();
         while (sol != null){
             count += 1;
             sol = solve();
@@ -100,27 +116,22 @@ public class AllowedTupleSearcher {
         return count;
     }
 
-    public int[][] getAllSolutions(){
-        int nb_solutions = count_sols();
-        int[][] allsolutions = new int[nb_solutions][constraints.length];
+    public int[][][] getAllSolutions(){
+        int nb_sols = count_sols();
+        int [][][] solutions = new int[nb_sols][constraints.length][size];
         initEnumeration();
-        int[] sol = solve();
+        int[][] sol = solve();
         int sol_id = 0;
         while (sol != null){
-            allsolutions[sol_id] = sol;
-            sol_id += 1;
+            solutions[sol_id] = sol;
+            sol_id++;
             sol = solve();
         }
         end();
-        return allsolutions;
+        return solutions;
     }
 
     public void end() {
-        try {
-            solver.printInformation();
-        } catch (IloException e) {
-            e.printStackTrace();
-        }
         solver.end();
     }
 
