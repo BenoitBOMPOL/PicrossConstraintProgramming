@@ -42,10 +42,16 @@ public class picrossSlv {
                 col_blocs[j] = all_sols_col;
             }
 
-
-
-
-
+            /**
+             * TODO :
+             *  1. Creating appropriate IloIntTupleSet for matrix corresponding to the chosen row ([][][])
+             *      L[i, k, j] : Selecting first i, then k, then j
+             *  2. Creating appropriate IloIntTupleSet for matrix corresponding to the chosen col ([][][])
+             *      C[j, k, i] : Selecting first j, then k, then i
+             *  3. Initializing such IloIntTupleSet
+             *  4. Adding, for each i, j, k (in constraints) :
+             *      L[i, k, j] <= sum(k' in constraints of column j) C[j, k', i]
+             */
 
         } catch (Exception e){
             e.printStackTrace();
