@@ -79,27 +79,23 @@ public class picrossSlv {
             }
 
             /* TODO : Connecting row_sols[i][k][j] to available solutions for row i
-             *
+             *      What can be done ?
+             *          1. index_sol_row_i (IloIntVar) is the index of the solution in get_solutions(instance.getRow_constraints(i), instance.getNb_cols());
+             *          2. solution_row_i (IloIntVar[][]) is the ELEMENT of get_solutions(instance.getRow_constraints(i), instance.getNb_cols()) of index index_sol_row_i;
+             *          3. row_sols[i][k][j] = solution_row_i[k][j] (loop over k and j)
              */
 
             /* TODO : Connecting col_sols[j][k][i] to available solutions for col j
-             *
+             *      What can be done ?
+             *          1. index_sol_col_j (IloIntVar) is the index of the solution in get_solutions(instance.getCol_constraints(j), instance.getNb_rows());
+             *          2. solution_col_j (IloIntVar[][]) is the ELEMENT of get_solutions(instance.getCol_constraints(j), instance.getNb_rows()) of index index_sol_col_j;
+             *          3. col_sols[j][k][i] = solution_col_j[k][i] (loop over k and i)
              */
         } catch (IloException e){
             e.printStackTrace();
         }
     }
 
-    /*
-     * TODO :
-     *  1. Creating appropriate IloIntTupleSet for matrix corresponding to the chosen row ([][][])
-     *      L[i, k, j] : Selecting first i, then k, then j
-     *  2. Creating appropriate IloIntTupleSet for matrix corresponding to the chosen col ([][][])
-     *      C[j, k, i] : Selecting first j, then k, then i
-     *  3. Initializing such IloIntTupleSet
-     *  4. Adding, for each i, j, k (in constraints) :
-     *      L[i, k, j] <= sum(k' in constraints of column j) C[j, k', i]
-     */
 
     public static void main(String[] args) {
         picrossSlv bird = new picrossSlv("./picross/bird.px");
