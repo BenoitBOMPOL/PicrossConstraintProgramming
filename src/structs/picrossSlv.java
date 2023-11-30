@@ -43,6 +43,18 @@ public class picrossSlv extends picross{
             solver.setParameter(IloCP.IntParam.Workers, 1);
 
             for (int i = 0; i < getNbrows(); i++){
+                for (int k = 0; k < getRow_constraints(i).length; k++){
+                    eff_row_solution[i][k] = solver.intVar(0, getNbcols() - 1);
+                }
+            }
+
+            for (int j = 0; j < getNbcols(); j++){
+                for (int k = 0; k < getCol_constraints(j).length; k++){
+                    eff_col_solution[j][k] = solver.intVar(0, getNbrows() - 1);
+                }
+            }
+
+            for (int i = 0; i < getNbrows(); i++){
                 row_solution[i] = solver.intTable(row_constraints[i].length);
                 for (int[] sol : get_solutions(row_constraints[i], getNbcols())){
                     solver.addTuple(row_solution[i], sol);
@@ -56,7 +68,6 @@ public class picrossSlv extends picross{
                 for (int[] sol : get_solutions(col_constraints[j], getNbrows())){
                     solver.addTuple(col_solution[j], sol);
                 }
-                // HERE
                 solver.add(solver.allowedAssignments(eff_col_solution[j], col_solution[j]));
             }
 
@@ -94,6 +105,13 @@ public class picrossSlv extends picross{
             System.out.println("\tCol no." + j + " : " + Arrays.toString(getCol_constraints(j)));
         }
     }
+    public void initEnumeration() {
+        try {
+            solver.startNewSearch();
+        } catch (IloException e) {
+            e.printStackTrace();
+        }
+    }
     public static void main(String[] args) {
         String filename = "./picross/bird.px";
         picrossSlv bird = null;
@@ -104,6 +122,14 @@ public class picrossSlv extends picross{
             e.printStackTrace();
         }
         assert bird != null;
-        bird.show_instance_info();
+        bird.initEnumeration();
+        int[][] sol = bird.solve();
+        System.out.println("Solution : ");
+        for (int i = 0; i < bird.getNbrows(); i++){
+            System.out.println("\t On row no." + i + " under constraints " + Arrays.toString(bird.getRow_constraints(i)) + " :");
+            for (int k = 0; k < sol[i].length; k++){
+                System.out.println("\t\t Bloc no." + k + " stars at " + sol[i][k] + ".");
+            }
+        }
     }
 }
