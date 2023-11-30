@@ -8,8 +8,16 @@ public class picrossSlv {
     private IloCP solver;
     private picross instance;
 
+    private int[][][][] row_all_solutions;
+    // NOTE : row_all_solutions[i][s][k][j] == 1 iff the s-th solution for row i is active on the j-th column for the k-th constraint
+
+    private int[][][][] col_all_solutions;
+    // NOTE : col_all_solutions[j][s][k][i] == 1 iff the s-th solution for col j is active on the i-th row for the k-th constraint
+
     private IloIntVar[][][] row_sols;
+    // NOTE : row_sols[i][k][j] == 1 iff the j-th bloc is active for the k-th constraint of row i
     private IloIntVar[][][] col_sols;
+    // NOTE : col_sols[j][k][i] == 1 iff the i-th bloc is active for the k-th constraint of col j
 
     public int[][][] get_solutions(int[] constraints, int size){
         AllowedTupleSearcher ats = new AllowedTupleSearcher(constraints, size);
@@ -17,22 +25,38 @@ public class picrossSlv {
     }
 
     public picrossSlv(String filename){
+        // Building the instance using the location
         try {
             this.instance = new picross(filename);
-            this.row_sols = new IloIntVar[instance.getNb_rows()][][];
-            for (int i = 0; i < instance.getNb_rows(); i++) {
-                row_sols[i] = new IloIntVar[instance.getRow_constraints(i).length][instance.getNb_cols()];
-            }
-
-            this.col_sols = new IloIntVar[instance.getNb_cols()][][];
-            for (int j = 0; j < instance.getNb_rows(); j++) {
-                col_sols[j] = new IloIntVar[instance.getCol_constraints(j).length][instance.getNb_rows()];
-            }
-
-            stateModel();
         } catch (Exception e){
-            e.printStackTrace();
+            System.out.println("[Exception] : Picross instance creation has failed.");
         }
+
+        // Enumerating all allowed solutions for each row
+        this.row_all_solutions = new int[instance.getNb_rows()][][][];
+        for (int i = 0; i < instance.getNb_rows(); i++){
+            row_all_solutions[i] = get_solutions(instance.getRow_constraints(i), instance.getNb_cols());
+        }
+
+        // Enumerating all allowed solutions for each column
+        this.col_all_solutions = new int[instance.getNb_cols()][][][];
+        for (int j = 0; j < instance.getNb_cols(); j++){
+            col_all_solutions[j] = get_solutions(instance.getCol_constraints(j), instance.getNb_rows());
+        }
+
+        // Creating the table for blocs for each row
+        this.row_sols = new IloIntVar[instance.getNb_rows()][][];
+        for (int i = 0; i < instance.getNb_rows(); i++) {
+            row_sols[i] = new IloIntVar[instance.getRow_constraints(i).length][instance.getNb_cols()];
+        }
+
+        // Creating the table for blocs for each column
+        this.col_sols = new IloIntVar[instance.getNb_cols()][][];
+        for (int j = 0; j < instance.getNb_rows(); j++) {
+            col_sols[j] = new IloIntVar[instance.getCol_constraints(j).length][instance.getNb_rows()];
+        }
+
+        stateModel();
     }
 
     public void stateModel(){
@@ -42,6 +66,7 @@ public class picrossSlv {
             solver.setParameter(IloCP.IntParam.SearchType, IloCP.ParameterValues.DepthFirst);
             solver.setParameter(IloCP.IntParam.Workers, 1);
 
+            // Initializing solutions for columns
             for (int j = 0; j < instance.getNb_cols(); j++){
                 for (int k = 0; k < instance.getCol_constraints(j).length; k++){
                     for (int i = 0; i < instance.getNb_rows(); i++) {
@@ -50,6 +75,7 @@ public class picrossSlv {
                 }
             }
 
+            // Initializing solutions for rows
             for (int i = 0; i < instance.getNb_rows(); i++){
                 for (int k = 0; k < instance.getRow_constraints(i).length; k++){
                     for (int j = 0; j < instance.getNb_cols(); j++) {
@@ -78,46 +104,8 @@ public class picrossSlv {
                 }
             }
 
-            IloIntVar[] index_sol_row = new IloIntVar[instance.getNb_rows()];
-            IloIntVar[][][] solution_row = new IloIntVar[instance.getNb_rows()][][];
-            for (int i = 0; i < instance.getNb_rows(); i++){
-                index_sol_row[i] = solver.intVar(0, get_solutions(instance.getRow_constraints(i), instance.getNb_cols()).length - 1);
-                solution_row[i] = new IloIntVar[instance.getRow_constraints(i).length][instance.getNb_cols()];
-                // TODO Element constraint on solution_row[i] : solution_row[i] contains the solution at index index_sol_row[i];
-                for (int k = 0; k < instance.getRow_constraints(i).length; k++){
-                    for (int j = 0; j < instance.getNb_cols(); j++){
-                        row_sols[i][k][j] = solution_row[i][k][j];
-                    }
-                }
-            }
-
-            IloIntVar[] index_sol_col = new IloIntVar[instance.getNb_cols()];
-            IloIntVar[][][] solution_col = new IloIntVar[instance.getNb_cols()][][];
-            for (int j = 0; j < instance.getNb_cols(); j++){
-                index_sol_col[j] = solver.intVar(0, get_solutions(instance.getCol_constraints(j), instance.getNb_rows()).length - 1);
-                solution_col[j] = new IloIntVar[instance.getCol_constraints(j).length][instance.getNb_rows()];
-                // TODO Element constraint on solution_col[j] : solution_col[j] contains the solution at index index_sol_col[j];
-                for (int k = 0; k < instance.getCol_constraints(j).length; k++){
-                    for (int i = 0; j < instance.getNb_rows(); i++){
-                        col_sols[j][k][i] = solution_col[j][k][i];
-                    }
-                }
-            }
-            /* TODO : Connecting col_sols[j][k][i] to available solutions for col j
-             *      What can be done ?
-             *          1. index_sol_col_j (IloIntVar) is the index of the solution in get_solutions(instance.getCol_constraints(j), instance.getNb_rows());
-             *              1.1 index_sol_col_j = solver.intVar(0, get_solutions(instance.getCol_constraints(j), instance.getNb_rows()).length - 1)
-             *          2. solution_col_j (IloIntVar[][]) is the ELEMENT of get_solutions(instance.getCol_constraints(j), instance.getNb_rows()) of index index_sol_col_j;
-             *          2.1 solver.element(...)
-             *          3. col_sols[j][k][i] = solution_col_j[k][i] (loop over k and i)
-             *              for (int k = 0; k < instance.getCol_constraints(j).length; k++){
-             *                  for (int i = 0; i < instance.getNb_rows(); j++){
-             *                      col_sols[j][k][i] = solution_col_j[k][i]
-             *                  }
-             *              }
-             */
         } catch (IloException e){
-            e.printStackTrace();
+            System.out.println("[Exception] : Variable creation and/or constraint creation has failed.");
         }
     }
 
