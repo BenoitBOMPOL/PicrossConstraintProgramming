@@ -8,6 +8,22 @@ public class picrossSlv {
     private IloCP solver;
     private picross instance;
 
+    public int get_nb_rows(){
+        return instance.getNb_rows();
+    }
+
+    public int get_nb_cols(){
+        return instance.getNb_cols();
+    }
+
+    public int[] get_constraints_on_row(int i){
+        return instance.getRow_constraints(i);
+    }
+
+    public int get_nb_constraints_on_row(int i){
+        return instance.getRow_constraints(i).length;
+    }
+
     private int[][][][] row_all_solutions;
     // NOTE : row_all_solutions[i][s][k][j] == 1 iff the s-th solution for row i is active on the j-th column for the k-th constraint
 
@@ -16,6 +32,8 @@ public class picrossSlv {
 
     private IloIntVar[][][] row_sols;
     // NOTE : row_sols[i][k][j] == 1 iff the j-th bloc is active for the k-th constraint of row i
+    // NOTE : This is what will be returned in the solve function
+
     private IloIntVar[][][] col_sols;
     // NOTE : col_sols[j][k][i] == 1 iff the i-th bloc is active for the k-th constraint of col j
 
@@ -87,6 +105,13 @@ public class picrossSlv {
             /// L[i, k, j] <= sum(k' in j-th col constraints) c[j, k', i]
             for (int i = 0; i < instance.getNb_rows(); i++){
                 for (int k = 0; k < instance.getRow_constraints(i).length; k++){
+                    solver.add(
+                            solver.eq(
+                                    instance.getRow_constraints(i)[k],
+                                    solver.sum(row_sols[i][k])
+                            )
+                    );
+
                     for (int j = 0; j < instance.getNb_cols(); j++) {
                         int nb_jth_col_csts = instance.getCol_constraints(j).length;
                         IloIntVar[] appliedconstraints_jth_col = new IloIntVar[nb_jth_col_csts];
@@ -109,8 +134,50 @@ public class picrossSlv {
         }
     }
 
+    public void initEnumeration() {
+        try {
+            solver.startNewSearch();
+        } catch (IloException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public int[][][] solve(){
+        int[][][] sol = null;
+        try{
+            if (solver.next()){
+                sol = new int[instance.getNb_rows()][][];
+                for (int i = 0; i < instance.getNb_rows(); i++) {
+                    sol[i] = new int[instance.getRow_constraints(i).length][instance.getNb_cols()];
+                    for (int k = 0; k < instance.getRow_constraints(i).length; k++){
+                        for (int j = 0; j < instance.getNb_cols(); j++){
+                            sol[i][k][j] = (int) solver.getValue(row_sols[i][k][j]);
+                        }
+                    }
+                }
+            }
+        } catch (IloException e){
+            System.out.println("[Exception] : Solving process has failed.");
+            e.printStackTrace();
+        }
+        return sol;
+    }
+
+    public void end(){
+        solver.end();
+    }
 
     public static void main(String[] args) {
         picrossSlv bird = new picrossSlv("./picross/bird.px");
+        bird.initEnumeration();
+
+        int[][][] bird_sol = bird.solve();
+        for (int i = 0; i < bird.get_nb_rows(); i++) {
+            System.out.println("Solution for row no. " + i + " under constraints " + Arrays.toString(bird.get_constraints_on_row(i)));
+            for (int k = 0; k < bird.get_nb_constraints_on_row(i); k++) {
+                System.out.println("\tConstraint no." + k + " : " + Arrays.toString(bird_sol[i][k]));
+            }
+        }
+
     }
 }
