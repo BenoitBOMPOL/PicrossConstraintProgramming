@@ -12,6 +12,9 @@ public class picrossSlv extends picross{
     private IloIntTupleSet[] col_solution;
     private IloIntVar[][] eff_col_solution;
 
+    private IloIntVar[][][] L;
+    private IloIntVar[][][] C;
+
     public int[][] get_solutions(int[] constraints, int size){
         AllowedTupleSearcher ats = new AllowedTupleSearcher(constraints, size);
         return ats.getAllSolutions();
@@ -20,6 +23,7 @@ public class picrossSlv extends picross{
 
     public picrossSlv(String filename) throws Exception {
         super(filename);
+
         this.row_solution = new IloIntTupleSet[getNbrows()];
         this.col_solution = new IloIntTupleSet[getNbcols()];
         this.eff_row_solution = new IloIntVar[getNbrows()][];
@@ -32,6 +36,15 @@ public class picrossSlv extends picross{
             eff_col_solution[j] = new IloIntVar[getCol_constraints(j).length];
         }
 
+        this.L = new IloIntVar[getNbrows()][][];
+        for (int i = 0; i < getNbrows(); i++) {
+            L[i] = new IloIntVar[getRow_constraints(i).length][getNbcols()];
+        }
+        this.C = new IloIntVar[getNbcols()][][];
+        for (int j = 0; j < getNbcols(); j++) {
+            C[j] = new IloIntVar[getCol_constraints(j).length][getNbrows()];
+        }
+
         stateModel();
     }
 
@@ -41,6 +54,22 @@ public class picrossSlv extends picross{
             solver.setParameter(IloCP.IntParam.LogVerbosity, IloCP.ParameterValues.Quiet);
             solver.setParameter(IloCP.IntParam.SearchType, IloCP.ParameterValues.DepthFirst);
             solver.setParameter(IloCP.IntParam.Workers, 1);
+
+            for (int i = 0; i < getNbrows(); i++){
+                for (int k = 0; k < getRow_constraints(i).length; k++){
+                    for (int j = 0; j < getNbcols(); j++){
+                        L[i][k][j] = solver.intVar(0, 1, "L[" + i + ", " + k + ", " + j + "]");
+                    }
+                }
+            }
+
+            for (int j = 0; j < getNbcols(); j++){
+                for (int k = 0; k < getCol_constraints(j).length; k++){
+                    for (int i = 0; i < getNbrows(); i++){
+                        C[j][k][i] = solver.intVar(0, 1, "C[" + j + ", " + k + ", " + i + "]");
+                    }
+                }
+            }
 
             for (int i = 0; i < getNbrows(); i++){
                 for (int k = 0; k < getRow_constraints(i).length; k++){
@@ -112,24 +141,36 @@ public class picrossSlv extends picross{
             e.printStackTrace();
         }
     }
+
+    public int count_sols(){
+        int count = 0;
+        initEnumeration();
+        int[][] sol = solve();
+        while (sol != null){
+            count += 1;
+            sol = solve();
+        }
+        return count;
+    }
+
     public static void main(String[] args) {
-        String filename = "./picross/bird.px";
+        String filename = "./picross/clock.px";
         picrossSlv bird = null;
         try {
             bird = new picrossSlv(filename);
+            bird.initEnumeration();
+            int[][] sol = bird.solve();
+            System.out.println("Solution : ");
+            for (int i = 0; i < bird.getNbrows(); i++){
+                System.out.println("\t On row no." + i + " under constraints " + Arrays.toString(bird.getRow_constraints(i)) + " :");
+                for (int k = 0; k < sol[i].length; k++){
+                    System.out.println("\t\t Bloc no." + k + " stars at " + sol[i][k] + ".");
+                }
+            }
         } catch (Exception e) {
             System.out.println("[picrossSlv] Instance creation has failed");
             e.printStackTrace();
         }
-        assert bird != null;
-        bird.initEnumeration();
-        int[][] sol = bird.solve();
-        System.out.println("Solution : ");
-        for (int i = 0; i < bird.getNbrows(); i++){
-            System.out.println("\t On row no." + i + " under constraints " + Arrays.toString(bird.getRow_constraints(i)) + " :");
-            for (int k = 0; k < sol[i].length; k++){
-                System.out.println("\t\t Bloc no." + k + " stars at " + sol[i][k] + ".");
-            }
-        }
+
     }
 }
