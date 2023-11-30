@@ -78,20 +78,31 @@ public class picrossSlv {
                 }
             }
 
-            /* TODO : Connecting row_sols[i][k][j] to available solutions for row i
-             *      What can be done ?
-             *          1. index_sol_row_i (IloIntVar) is the index of the solution in get_solutions(instance.getRow_constraints(i), instance.getNb_cols());
-             *              1.1 index_sol_row_i = solver.intVar(0, get_solutions(instance.getRow_constraints(i), instance.getNb_cols()).length - 1)
-             *          2. solution_row_i (IloIntVar[][]) is the ELEMENT of get_solutions(instance.getRow_constraints(i), instance.getNb_cols()) of index index_sol_row_i;
-             *              2.1 solver.element(...)
-             *          3. row_sols[i][k][j] = solution_row_i[k][j] (loop over k and j)
-             *              for (int k = 0; k < instance.getRow_constraints(i).length; k++){
-             *                  for (int j = 0; j < instance.getNb_cols(); j++){
-             *                      row_sols[i][j][k] = solution_row_i[k][j]
-             *                  }
-             *              }
-             */
+            IloIntVar[] index_sol_row = new IloIntVar[instance.getNb_rows()];
+            IloIntVar[][][] solution_row = new IloIntVar[instance.getNb_rows()][][];
+            for (int i = 0; i < instance.getNb_rows(); i++){
+                index_sol_row[i] = solver.intVar(0, get_solutions(instance.getRow_constraints(i), instance.getNb_cols()).length - 1);
+                solution_row[i] = new IloIntVar[instance.getRow_constraints(i).length][instance.getNb_cols()];
+                // TODO Element constraint on solution_row[i] : solution_row[i] contains the solution at index index_sol_row[i];
+                for (int k = 0; k < instance.getRow_constraints(i).length; k++){
+                    for (int j = 0; j < instance.getNb_cols(); j++){
+                        row_sols[i][k][j] = solution_row[i][k][j];
+                    }
+                }
+            }
 
+            IloIntVar[] index_sol_col = new IloIntVar[instance.getNb_cols()];
+            IloIntVar[][][] solution_col = new IloIntVar[instance.getNb_cols()][][];
+            for (int j = 0; j < instance.getNb_cols(); j++){
+                index_sol_col[j] = solver.intVar(0, get_solutions(instance.getCol_constraints(j), instance.getNb_rows()).length - 1);
+                solution_col[j] = new IloIntVar[instance.getCol_constraints(j).length][instance.getNb_rows()];
+                // TODO Element constraint on solution_col[j] : solution_col[j] contains the solution at index index_sol_col[j];
+                for (int k = 0; k < instance.getCol_constraints(j).length; k++){
+                    for (int i = 0; j < instance.getNb_rows(); i++){
+                        col_sols[j][k][i] = solution_col[j][k][i];
+                    }
+                }
+            }
             /* TODO : Connecting col_sols[j][k][i] to available solutions for col j
              *      What can be done ?
              *          1. index_sol_col_j (IloIntVar) is the index of the solution in get_solutions(instance.getCol_constraints(j), instance.getNb_rows());
