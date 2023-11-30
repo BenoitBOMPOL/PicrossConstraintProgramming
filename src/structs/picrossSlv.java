@@ -81,15 +81,29 @@ public class picrossSlv {
             /* TODO : Connecting row_sols[i][k][j] to available solutions for row i
              *      What can be done ?
              *          1. index_sol_row_i (IloIntVar) is the index of the solution in get_solutions(instance.getRow_constraints(i), instance.getNb_cols());
+             *              1.1 index_sol_row_i = solver.intVar(0, get_solutions(instance.getRow_constraints(i), instance.getNb_cols()).length - 1)
              *          2. solution_row_i (IloIntVar[][]) is the ELEMENT of get_solutions(instance.getRow_constraints(i), instance.getNb_cols()) of index index_sol_row_i;
+             *              2.1 solver.element(...)
              *          3. row_sols[i][k][j] = solution_row_i[k][j] (loop over k and j)
+             *              for (int k = 0; k < instance.getRow_constraints(i).length; k++){
+             *                  for (int j = 0; j < instance.getNb_cols(); j++){
+             *                      row_sols[i][j][k] = solution_row_i[k][j]
+             *                  }
+             *              }
              */
 
             /* TODO : Connecting col_sols[j][k][i] to available solutions for col j
              *      What can be done ?
              *          1. index_sol_col_j (IloIntVar) is the index of the solution in get_solutions(instance.getCol_constraints(j), instance.getNb_rows());
+             *              1.1 index_sol_col_j = solver.intVar(0, get_solutions(instance.getCol_constraints(j), instance.getNb_rows()).length - 1)
              *          2. solution_col_j (IloIntVar[][]) is the ELEMENT of get_solutions(instance.getCol_constraints(j), instance.getNb_rows()) of index index_sol_col_j;
+             *          2.1 solver.element(...)
              *          3. col_sols[j][k][i] = solution_col_j[k][i] (loop over k and i)
+             *              for (int k = 0; k < instance.getCol_constraints(j).length; k++){
+             *                  for (int i = 0; i < instance.getNb_rows(); j++){
+             *                      col_sols[j][k][i] = solution_col_j[k][i]
+             *                  }
+             *              }
              */
         } catch (IloException e){
             e.printStackTrace();
