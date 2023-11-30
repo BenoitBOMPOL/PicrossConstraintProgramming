@@ -63,10 +63,10 @@ public class AllowedTupleSearcher {
         }
     }
 
-    public void displaySolution(int[][] sol, int sol_no){
+    public void displaySolution(int[] sol, int sol_no){
         System.out.println("+++ Solution " + sol_no + " under constraints " + Arrays.toString(constraints) + " and size " + size + ".");
         for (int c = 0; c < constraints.length; c++){
-            System.out.println("\tBloc no. " + c + " : " + Arrays.toString(sol[c]));
+            System.out.println("\tBloc no. " + c + " starts as position " + sol[c]);
         }
     }
 
@@ -82,21 +82,13 @@ public class AllowedTupleSearcher {
      * sol[i][j] is an integer variable (0, 1)
      *  sol[i][j] == 1 if the i-th constraint is "active" at position j
      */
-    public int[][] solve(){
-        int[][] sol = null;
+    public int[] solve(){
+        int[] sol = null;
         try{
             if (solver.next()){
-                sol = new int[constraints.length][size];
+                sol = new int[constraints.length];
                 for (int i = 0; i < constraints.length; i++){
-                    int start_cst_i = (int) solver.getValue(start[i]);
-                    for (int j = 0; j < size; j++){
-                        if ((j >= start_cst_i) && (j < start_cst_i + constraints[i])){
-                            sol[i][j] = 1;
-                        } else {
-                            sol[i][j] = 0;
-                        }
-                    }
-
+                    sol[i] = (int) solver.getValue(start[i]);
                 }
             }
         } catch (IloException e){
@@ -108,7 +100,7 @@ public class AllowedTupleSearcher {
     public int count_sols(){
         int count = 0;
         initEnumeration();
-        int[][] sol = solve();
+        int[] sol = solve();
         while (sol != null){
             count += 1;
             sol = solve();
@@ -116,11 +108,11 @@ public class AllowedTupleSearcher {
         return count;
     }
 
-    public int[][][] getAllSolutions(){
+    public int[][] getAllSolutions(){
         int nb_sols = count_sols();
-        int [][][] solutions = new int[nb_sols][constraints.length][size];
+        int [][] solutions = new int[nb_sols][constraints.length];
         initEnumeration();
-        int[][] sol = solve();
+        int[] sol = solve();
         int sol_id = 0;
         while (sol != null){
             solutions[sol_id] = sol;

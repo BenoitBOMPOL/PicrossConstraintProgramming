@@ -3,17 +3,17 @@ import java.io.*;
 import java.util.Arrays;
 
 public class picross {
-    private int nb_rows;    // Numbers of rows in the picross
-    private int nb_cols;    // Numbers of cols in the picross
-    private int[][] row_constraints;
-    private int[][] col_constraints;
+    private int nbrows;    // Numbers of rows in the picross
+    private int nbcols;    // Numbers of cols in the picross
+    protected int[][] row_constraints;
+    protected int[][] col_constraints;
 
-    public int getNb_cols() {
-        return nb_cols;
+    public int getNbcols() {
+        return nbcols;
     }
 
-    public int getNb_rows() {
-        return nb_rows;
+    public int getNbrows() {
+        return nbrows;
     }
 
     public int[] getCol_constraints(int j) {
@@ -36,17 +36,17 @@ public class picross {
         while ((chars = bread.readLine()) != null){
             if (!definedims){
                 // Getting numbers of rows and lines in the first line of the file
-                this.nb_rows = Integer.parseInt(chars.split(",")[0]);
-                this.nb_cols = Integer.parseInt(chars.split(",")[1]);
+                this.nbrows = Integer.parseInt(chars.split(",")[0]);
+                this.nbcols = Integer.parseInt(chars.split(",")[1]);
 
-                this.row_constraints = new int[nb_rows][];
-                this.col_constraints = new int[nb_cols][];
+                this.row_constraints = new int[nbrows][];
+                this.col_constraints = new int[nbcols][];
                 
                 definedims = true;
             } else{
                 // Getting each constraint
                 String[] str_constraints = chars.split(",");
-                if (count_rowconstraint < nb_rows){
+                if (count_rowconstraint < nbrows){
                     row_constraints[count_rowconstraint] = new int[str_constraints.length];
                     for (int i = 0; i < str_constraints.length; i++){
                         row_constraints[count_rowconstraint][i] = Integer.parseInt(str_constraints[i]);
@@ -66,13 +66,13 @@ public class picross {
 
     public static void main(String[] args) throws Exception {
         picross bird = new picross("./picross/bird.px");
-        System.out.println("There are " + bird.getNb_rows() + " rows and " + bird.getNb_cols() + " columns.");
+        System.out.println("There are " + bird.getNbrows() + " rows and " + bird.getNbcols() + " columns.");
         System.out.println("+++ Constraint on rows +++");
-        for (int i = 0; i < bird.getNb_rows(); i++){
+        for (int i = 0; i < bird.getNbrows(); i++){
             System.out.println("\tRow no." + i + " : " + Arrays.toString(bird.getRow_constraints(i)));
         }
         System.out.println("+++ Constraint on cols +++");
-        for (int j = 0; j < bird.getNb_cols(); j++){
+        for (int j = 0; j < bird.getNbcols(); j++){
             System.out.println("\tCol no." + j + " : " + Arrays.toString(bird.getCol_constraints(j)));
         }
     }

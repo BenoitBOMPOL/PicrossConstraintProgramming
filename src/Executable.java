@@ -14,9 +14,9 @@ public class Executable {
             for (int c_id = 0; c_id < ats.getConstraints().length; c_id++){
                 System.out.println("\t Constraint no." + c_id + " : " + ats.get_ith_constraint(c_id));
             }
-            int[][][] solutions = ats.getAllSolutions();
+            int[][] solutions = ats.getAllSolutions();
             int sol_no = 0;
-            for (int [][] sol : solutions){
+            for (int [] sol : solutions){
                 ats.displaySolution(sol, sol_no);
                 sol_no++;
             }
