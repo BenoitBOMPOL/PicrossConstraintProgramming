@@ -100,6 +100,78 @@ public class picrossSlv extends picross{
                 solver.add(solver.allowedAssignments(eff_col_solution[j], col_solution[j]));
             }
 
+            for (int i = 0; i < getNbrows(); i++){
+                for (int k = 0; k < getRow_constraints(i).length; k++){
+                    for (int j = 0; j < getNbcols(); j++){
+                        for (int p = 0; p < getRow_constraints(i)[k]; p++) {
+                            if (j + p < getNbcols()) {
+                                solver.add(
+                                        solver.ifThen(
+                                                solver.eq(eff_row_solution[i][k], j),
+                                                solver.eq(L[i][k][j + p], 1)
+                                        )
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+
+            for (int j = 0; j < getNbcols(); j++){
+                for (int k = 0; k < getCol_constraints(j).length; k++){
+                    for (int i = 0; i < getNbrows(); i++){
+                        for (int q = 0; q < getCol_constraints(j)[k]; q++) {
+                            if (i + q < getNbrows()) {
+                                solver.add(
+                                        solver.ifThen(
+                                                solver.eq(eff_col_solution[j][k], i),
+                                                 solver.eq(C[j][k][i + q], 1)
+                                        )
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+
+            for (int i = 0; i < getNbrows(); i++){
+                for (int k = 0; k < getRow_constraints(i).length; k++){
+                    for (int j = 0; j < getNbcols(); j++){
+                        IloIntVar[] temp_col = new IloIntVar[getCol_constraints(j).length];
+                        for (int k_pr = 0; k_pr < getCol_constraints(j).length; k_pr++){
+                            temp_col[k_pr] = C[j][k_pr][i];
+                        }
+                        solver.add(solver.le(L[i][k][j], solver.sum(temp_col)));
+                    }
+                }
+            }
+
+            for (int j = 0; j < getNbcols(); j++){
+                for (int k = 0; k < getCol_constraints(j).length; k++){
+                    for (int i = 0; i < getNbrows(); i++){
+                        IloIntVar[] temp_row = new IloIntVar[getRow_constraints(i).length];
+                        for (int k_pr = 0; k_pr < getRow_constraints(i).length; k_pr++){
+                            temp_row[k_pr] = L[i][k_pr][j];
+                        }
+                        solver.add(solver.le(C[j][k][i], solver.sum(temp_row)));
+                    }
+                }
+            }
+
+
+            for (int i = 0; i < getNbrows(); i++){
+                for (int k = 0; k < getRow_constraints(i).length; k++){
+                    solver.add(solver.eq(solver.sum(L[i][k]), getRow_constraints(i)[k]));
+                }
+            }
+
+
+            for (int j = 0; j < getNbcols(); j++){
+                for (int k = 0; k < getCol_constraints(j).length; k++){
+                    solver.add(solver.eq(solver.sum(C[j][k]), getCol_constraints(j)[k]));
+                }
+            }
+
         } catch (IloException e){
             e.printStackTrace();
         }
@@ -142,6 +214,36 @@ public class picrossSlv extends picross{
         }
     }
 
+    public void displaysol(int[][] sol){
+        int[][] m = new int[getNbrows()][getNbcols()];
+        for (int i = 0; i < getNbrows(); i ++){
+            for (int j = 0; j < getNbcols(); j++){
+                m[i][j] = 0;
+            }
+        }
+
+        for (int i = 0; i < getNbrows(); i++){
+            for (int k = 0; k < getRow_constraints(i).length; k++){
+                int start = sol[i][k];
+                int length = getRow_constraints(i)[k];
+                for (int j = 0; j < getNbcols(); j++){
+                    if ((j >= start) && (j < start + length)){
+                        m[i][j]++;
+                    }
+                }
+            }
+            for (int j = 0; j < getNbcols(); j++){
+                if (m[i][j] == 1){
+                    System.out.print("⬜");
+                } else {
+                    System.out.print("⬛");
+                }
+            }
+            System.out.println();
+        }
+    }
+
+
     public int count_sols(){
         int count = 0;
         initEnumeration();
@@ -154,19 +256,13 @@ public class picrossSlv extends picross{
     }
 
     public static void main(String[] args) {
-        String filename = "./picross/clock.px";
+        String filename = "./picross/dorian.px";
         picrossSlv bird = null;
         try {
             bird = new picrossSlv(filename);
             bird.initEnumeration();
             int[][] sol = bird.solve();
-            System.out.println("Solution : ");
-            for (int i = 0; i < bird.getNbrows(); i++){
-                System.out.println("\t On row no." + i + " under constraints " + Arrays.toString(bird.getRow_constraints(i)) + " :");
-                for (int k = 0; k < sol[i].length; k++){
-                    System.out.println("\t\t Bloc no." + k + " stars at " + sol[i][k] + ".");
-                }
-            }
+            bird.displaysol(sol);
         } catch (Exception e) {
             System.out.println("[picrossSlv] Instance creation has failed");
             e.printStackTrace();
