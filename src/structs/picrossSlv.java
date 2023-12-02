@@ -234,9 +234,9 @@ public class picrossSlv extends picross{
             }
             for (int j = 0; j < getNbcols(); j++){
                 if (m[i][j] == 1){
-                    System.out.print("⬜");
-                } else {
                     System.out.print("⬛");
+                } else {
+                    System.out.print("⬜");
                 }
             }
             System.out.println();
@@ -256,7 +256,7 @@ public class picrossSlv extends picross{
     }
 
     public static void main(String[] args) {
-        String filename = "./picross/clock.px";
+        String filename = "./picross/chapichapo.px";
         picrossSlv bird = null;
         try {
             bird = new picrossSlv(filename);
