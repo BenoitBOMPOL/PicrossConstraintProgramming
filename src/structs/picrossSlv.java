@@ -232,7 +232,7 @@ public class picrossSlv extends picross{
     }
 
     public static void main(String[] args) {
-        String filename = "./picross/clock.px";
+        String filename = "./picross/dorian.px";
         picrossSlv bird = null;
         try {
             bird = new picrossSlv(filename);
