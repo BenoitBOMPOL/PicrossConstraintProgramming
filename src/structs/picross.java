@@ -64,16 +64,19 @@ public class picross {
         bread.close();
     }
 
-    public static void main(String[] args) throws Exception {
-        picross bird = new picross("./picross/bird.px");
-        System.out.println("There are " + bird.getNbrows() + " rows and " + bird.getNbcols() + " columns.");
+    public void show_instance_info(){
+        System.out.println("There are " + getNbrows() + " rows and " + getNbcols() + " columns.");
         System.out.println("+++ Constraint on rows +++");
-        for (int i = 0; i < bird.getNbrows(); i++){
-            System.out.println("\tRow no." + i + " : " + Arrays.toString(bird.getRow_constraints(i)));
+        for (int i = 0; i < getNbrows(); i++){
+            System.out.println("\tRow no." + i + " : " + Arrays.toString(getRow_constraints(i)));
         }
         System.out.println("+++ Constraint on cols +++");
-        for (int j = 0; j < bird.getNbcols(); j++){
-            System.out.println("\tCol no." + j + " : " + Arrays.toString(bird.getCol_constraints(j)));
+        for (int j = 0; j < getNbcols(); j++){
+            System.out.println("\tCol no." + j + " : " + Arrays.toString(getCol_constraints(j)));
         }
+    }
+    public static void main(String[] args) throws Exception {
+        picross bird = new picross("./picross/bird.px");
+        bird.show_instance_info();
     }
 }

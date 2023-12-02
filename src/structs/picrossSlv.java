@@ -194,18 +194,6 @@ public class picrossSlv extends picross{
         }
         return sol;
     }
-
-    public void show_instance_info(){
-        System.out.println("There are " + getNbrows() + " rows and " + getNbcols() + " columns.");
-        System.out.println("+++ Constraint on rows +++");
-        for (int i = 0; i < getNbrows(); i++){
-            System.out.println("\tRow no." + i + " : " + Arrays.toString(getRow_constraints(i)));
-        }
-        System.out.println("+++ Constraint on cols +++");
-        for (int j = 0; j < getNbcols(); j++){
-            System.out.println("\tCol no." + j + " : " + Arrays.toString(getCol_constraints(j)));
-        }
-    }
     public void initEnumeration() {
         try {
             solver.startNewSearch();
@@ -241,18 +229,6 @@ public class picrossSlv extends picross{
             }
             System.out.println();
         }
-    }
-
-
-    public int count_sols(){
-        int count = 0;
-        initEnumeration();
-        int[][] sol = solve();
-        while (sol != null){
-            count += 1;
-            sol = solve();
-        }
-        return count;
     }
 
     public static void main(String[] args) {
