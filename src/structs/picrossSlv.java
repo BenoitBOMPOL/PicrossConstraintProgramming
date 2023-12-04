@@ -103,16 +103,18 @@ public class picrossSlv extends picross{
             for (int i = 0; i < getNbrows(); i++){
                 for (int k = 0; k < getRow_constraints(i).length; k++){
                     for (int j = 0; j < getNbcols(); j++){
-                        for (int p = 0; p < getRow_constraints(i)[k]; p++) {
-                            if (j + p < getNbcols()) {
-                                solver.add(
-                                        solver.ifThen(
-                                                solver.eq(eff_row_solution[i][k], j),
-                                                solver.eq(L[i][k][j + p], 1)
-                                        )
-                                );
-                            }
+                        int p_ijk = 0;
+                        for (int p = 0; (p < getRow_constraints(i)[k]) && (j + p < getNbcols()); p++){
+                            p_ijk++;
                         }
+                        IloIntVar[] partial_row = new IloIntVar[p_ijk];
+                        System.arraycopy(L[i][k], j, partial_row, 0, p_ijk);
+                        solver.add(
+                                solver.ifThen(
+                                        solver.eq(eff_row_solution[i][k], j),
+                                        solver.eq(solver.sum(partial_row), p_ijk)
+                                )
+                        );
                     }
                 }
             }
@@ -120,16 +122,18 @@ public class picrossSlv extends picross{
             for (int j = 0; j < getNbcols(); j++){
                 for (int k = 0; k < getCol_constraints(j).length; k++){
                     for (int i = 0; i < getNbrows(); i++){
-                        for (int q = 0; q < getCol_constraints(j)[k]; q++) {
-                            if (i + q < getNbrows()) {
-                                solver.add(
-                                        solver.ifThen(
-                                                solver.eq(eff_col_solution[j][k], i),
-                                                 solver.eq(C[j][k][i + q], 1)
-                                        )
-                                );
-                            }
+                        int q_ijk = 0;
+                        for (int q = 0; (q < getCol_constraints(j)[k]) && (i + q < getNbrows()); q++){
+                            q_ijk++;
                         }
+                        IloIntVar[] partial_col = new IloIntVar[q_ijk];
+                        System.arraycopy(C[j][k], i, partial_col, 0, q_ijk);
+                        solver.add(
+                                solver.ifThen(
+                                        solver.eq(eff_col_solution[j][k], i),
+                                        solver.eq(solver.sum(partial_col), q_ijk)
+                                )
+                        );
                     }
                 }
             }
@@ -232,13 +236,13 @@ public class picrossSlv extends picross{
     }
 
     public static void main(String[] args) {
-        String filename = "./picross/dorian.px";
-        picrossSlv bird = null;
+        String filename = "./picross/chapichapo.px";
+        picrossSlv picross = null;
         try {
-            bird = new picrossSlv(filename);
-            bird.initEnumeration();
-            int[][] sol = bird.solve();
-            bird.displaysol(sol);
+            picross = new picrossSlv(filename);
+            picross.initEnumeration();
+            int[][] sol = picross.solve();
+            picross.displaysol(sol);
         } catch (Exception e) {
             System.out.println("[picrossSlv] Instance creation has failed");
             e.printStackTrace();
