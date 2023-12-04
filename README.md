@@ -6,7 +6,7 @@
 - Creation of a picross-solver class, taking the `.px` file location as an input
 
 [![Generic badge](https://img.shields.io/badge/PICROSS-FIXME-orange.svg)](https://shields.io/)
-- 😮‍💨 : Solver is using reification (solver.ifThen) in order to connect bloc start location and (0/1)-variable indicators
+- 😮‍💨 : Solver is using reification (`solver.ifThen`) in order to connect bloc start location and (0/1)-variable indicators
   - (Version ![1.0](https://github.com/BenoitBOMPOL/PicrossConstraintProgramming/releases/tag/v1.0) is using reification)
   
 - ⚔️ : Solver does not work for middle-size Picross (10x10 Picross grids appear to be the limit)
