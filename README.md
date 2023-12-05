@@ -16,3 +16,8 @@
 
 [![Generic badge](https://img.shields.io/badge/PICROSS-NEXT-8A2BE2.svg)](https://shields.io/)
 - ✍️ : Writing a small report on the whole process
+
+
+## Towards MIP-Like solver
+I'll use `ers[i][k]` as a shortcut for `eff_row_solution[i][k]`, and likewise `erc[j][k]` as a shortcut for `eff_col_solution[j][k]`.
+The following notations goes (cf. picture)
