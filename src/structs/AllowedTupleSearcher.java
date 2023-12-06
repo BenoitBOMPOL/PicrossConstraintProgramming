@@ -65,9 +65,7 @@ public class AllowedTupleSearcher {
 
     public void displaySolution(int[] sol, int sol_no){
         System.out.println("+++ Solution " + sol_no + " under constraints " + Arrays.toString(constraints) + " and size " + size + ".");
-        for (int c = 0; c < constraints.length; c++){
-            System.out.println("\tBloc no. " + c + " starts as position " + sol[c]);
-        }
+        System.out.println("\t" + Arrays.toString(sol));
     }
 
     public void initEnumeration() {
@@ -78,17 +76,23 @@ public class AllowedTupleSearcher {
         }
     }
 
-    /**
-     * sol[i][j] is an integer variable (0, 1)
-     *  sol[i][j] == 1 if the i-th constraint is "active" at position j
-     */
+    // sol[i] = (0, 1)
+    // sol[i] == 1 ssi la case (i) est coloriée
     public int[] solve(){
         int[] sol = null;
         try{
             if (solver.next()){
-                sol = new int[constraints.length];
-                for (int i = 0; i < constraints.length; i++){
-                    sol[i] = (int) solver.getValue(start[i]);
+                sol = new int[this.size];
+                for (int i = 0; i < size; i++){
+                    sol[i] = 0;
+                }
+
+                for (int k = 0; k < constraints.length; k++){
+                    int length = constraints[k];
+                    int start_ = (int) solver.getValue(start[k]);
+                    for (int i = start_; i < start_ + length; i++){
+                        sol[i] = 1;
+                    }
                 }
             }
         } catch (IloException e){
@@ -110,7 +114,7 @@ public class AllowedTupleSearcher {
 
     public int[][] getAllSolutions(){
         int nb_sols = count_sols();
-        int [][] solutions = new int[nb_sols][constraints.length];
+        int [][] solutions = new int[nb_sols][size];
         initEnumeration();
         int[] sol = solve();
         int sol_id = 0;
@@ -125,6 +129,27 @@ public class AllowedTupleSearcher {
 
     public void end() {
         solver.end();
+    }
+
+    public static void main(String[] args){
+        int row_size = 15;
+        int[] constraints = {4, 3, 5};
+        AllowedTupleSearcher ats = new AllowedTupleSearcher(constraints, row_size);
+        ats.initEnumeration();
+        try {
+            System.out.println("Informations on the instance : ");
+            System.out.println("\t Instance has " + ats.getConstraints().length + " constraints on a row of length " + ats.getSize() +  ".");
+            System.out.println("\t Constraints : " + Arrays.toString(ats.getConstraints()));
+
+            int[][] solutions = ats.getAllSolutions();
+            int sol_no = 0;
+            for (int [] sol : solutions){
+                ats.displaySolution(sol, sol_no);
+                sol_no++;
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
 }
