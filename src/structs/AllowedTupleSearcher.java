@@ -132,8 +132,8 @@ public class AllowedTupleSearcher {
     }
 
     public static void main(String[] args){
-        int row_size = 15;
-        int[] constraints = {4, 3, 5};
+        int row_size = 22;
+        int[] constraints = {1,1,2,1};
         AllowedTupleSearcher ats = new AllowedTupleSearcher(constraints, row_size);
         ats.initEnumeration();
         try {

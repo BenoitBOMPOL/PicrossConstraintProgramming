@@ -8,12 +8,8 @@ import java.util.Arrays;
 public class picrossSlv extends picross{
     private IloCP solver;
     private IloIntTupleSet[] row_solution;
-    private IloIntVar[][] eff_row_solution;
     private IloIntTupleSet[] col_solution;
-    private IloIntVar[][] eff_col_solution;
-
-    // private IloIntVar[][] L;
-    // private IloIntVar[][] C;
+    private IloIntVar[][] grid;
 
     public int[][] get_solutions(int[] constraints, int size){
         AllowedTupleSearcher ats = new AllowedTupleSearcher(constraints, size);
@@ -26,43 +22,29 @@ public class picrossSlv extends picross{
 
         this.row_solution = new IloIntTupleSet[getNbrows()];
         this.col_solution = new IloIntTupleSet[getNbcols()];
-        this.eff_row_solution = new IloIntVar[getNbrows()][getNbcols()];
-        this.eff_col_solution = new IloIntVar[getNbcols()][getNbrows()];
-
-        // this.L = new IloIntVar[getNbrows()][getNbcols()];
-        // this.C = new IloIntVar[getNbcols()][getNbrows()];
+        this.grid = new IloIntVar[getNbrows()][getNbcols()];
 
         stateModel();
+    }
+
+    public IloIntVar[] get_jth_col(int j){
+        IloIntVar[] col = new IloIntVar[getNbrows()];
+        for (int i = 0; i < getNbrows(); i++){
+            col[i] = grid[i][j];
+        }
+        return col;
     }
 
     public void stateModel(){
         try {
             solver = new IloCP();
             solver.setParameter(IloCP.IntParam.LogVerbosity, IloCP.ParameterValues.Quiet);
-            solver.setParameter(IloCP.IntParam.SearchType, IloCP.ParameterValues.DepthFirst);
+            // solver.setParameter(IloCP.IntParam.SearchType, IloCP.ParameterValues.DepthFirst);
             solver.setParameter(IloCP.IntParam.Workers, 1);
-
-            /* for (int i = 0; i < getNbrows(); i++){
-                for (int j = 0; j < getNbcols(); j++){
-                    L[i][j] = solver.intVar(0, 1, "L[" + i + ", " + j + "]");
-                }
-            }
-
-            for (int j = 0; j < getNbcols(); j++){
-                for (int i = 0; i < getNbrows(); i++){
-                    C[j][i] = solver.intVar(0, 1, "C[" + j + ", " + i + "]");
-                }
-            } */
 
             for (int i = 0; i < getNbrows(); i++){
                 for (int j = 0; j < getNbcols(); j++){
-                    eff_row_solution[i][j] = solver.intVar(0,  1);
-                }
-            }
-
-            for (int j = 0; j < getNbcols(); j++){
-                for (int i = 0; i < getNbrows(); i++){
-                    eff_col_solution[j][i] = solver.intVar(0, 1);
+                    grid[i][j] = solver.intVar(0,  1);
                 }
             }
 
@@ -71,7 +53,7 @@ public class picrossSlv extends picross{
                 for (int[] sol : get_solutions(row_constraints[i], getNbcols())){
                     solver.addTuple(row_solution[i], sol);
                 }
-                solver.add(solver.allowedAssignments(eff_row_solution[i], row_solution[i]));
+                solver.add(solver.allowedAssignments(grid[i], row_solution[i]));
             }
 
             for (int j = 0; j < getNbcols(); j++){
@@ -79,15 +61,28 @@ public class picrossSlv extends picross{
                 for (int[] sol : get_solutions(col_constraints[j], getNbrows())){
                     solver.addTuple(col_solution[j], sol);
                 }
-                solver.add(solver.allowedAssignments(eff_col_solution[j], col_solution[j]));
+                solver.add(solver.allowedAssignments(get_jth_col(j), col_solution[j]));
             }
 
+        } catch (IloException e){
+            e.printStackTrace();
+        }
+    }
+
+    public void propagate(){
+        try {
+            solver.propagate();
             for (int i = 0; i < getNbrows(); i++){
                 for (int j = 0; j < getNbcols(); j++){
-                    solver.add(solver.eq(eff_row_solution[i][j], eff_col_solution[j][i]));
+                    if (solver.isFixed(grid[i][j])){
+                        int value = (int) solver.getValue(grid[i][j]);
+                        System.out.print(value == 1 ? "⬛" : "⬜");
+                    } else {
+                        System.out.print("\uD83D\uDFE5");
+                    }
                 }
+                System.out.println();
             }
-
         } catch (IloException e){
             e.printStackTrace();
         }
@@ -100,10 +95,14 @@ public class picrossSlv extends picross{
                 sol = new int[getNbrows()][getNbcols()];
                 for (int i = 0; i < getNbrows(); i++){
                     for (int j = 0; j < getNbcols(); j++){
-                        sol[i][j] = (int) solver.getValue(eff_row_solution[i][j]);
+                        sol[i][j] = (int) solver.getValue(grid[i][j]);
                     }
                 }
             }
+            solver.printInformation();
+            int nbFails = solver.getInfo(IloCP.IntInfo.NumberOfFails);
+            System.out.println("Fails : " + nbFails);
+
         } catch (IloException e){
             e.printStackTrace();
         }
@@ -118,8 +117,6 @@ public class picrossSlv extends picross{
     }
 
     public void displaysol(int[][] sol){
-        // sol.length = nb_rows
-        // sol[0].length = nb_cols
         for (int i = 0; i < getNbrows(); i++){
             for (int j = 0; j < getNbcols(); j++){
                 if (sol[i][j] == 1){
@@ -133,10 +130,14 @@ public class picrossSlv extends picross{
     }
 
     public static void main(String[] args) {
-        String filename = "./picross/bird.px";
+        String filename = "./picross/lepers.px";
         picrossSlv picross = null;
         try {
             picross = new picrossSlv(filename);
+            picross.initEnumeration();
+            picross.propagate();
+
+
             picross.initEnumeration();
             int[][] sol = picross.solve();
             picross.displaysol(sol);
