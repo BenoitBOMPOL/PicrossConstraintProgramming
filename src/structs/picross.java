@@ -75,8 +75,31 @@ public class picross {
             System.out.println("\tCol no." + j + " : " + Arrays.toString(getCol_constraints(j)));
         }
     }
+
+    public void show_heap_tuples(){
+        int nb_tuple_stored = 0;
+        for (int i = 0; i < getNbrows(); i++){
+            int[] constraints = getRow_constraints(i);
+            AllowedTupleSearcher ats = new AllowedTupleSearcher(constraints, getNbcols());
+            int [][] solutions = ats.getAllSolutions();
+            int nb_solutions = solutions.length;
+            nb_tuple_stored += solutions.length;
+            System.out.println("For row no. " + i + ", " + nb_solutions + " were stored.");
+        }
+        System.out.println();
+        for (int j = 0; j < getNbcols(); j++){
+            int[] constraints = getCol_constraints(j);
+            AllowedTupleSearcher ats = new AllowedTupleSearcher(constraints, getNbrows());
+            int [][] solutions = ats.getAllSolutions();
+            int nb_solutions = solutions.length;
+            nb_tuple_stored += solutions.length;
+            System.out.println("For col no. " + j + ", " + nb_solutions + " were stored.");
+        }
+        System.out.println();
+        System.out.println("In total, " + nb_tuple_stored + " tuples were stored.");
+    }
     public static void main(String[] args) throws Exception {
-        picross bird = new picross("./picross/bird.px");
-        bird.show_instance_info();
+        picross bird = new picross("./picross/knife.px");
+        bird.show_heap_tuples();
     }
 }

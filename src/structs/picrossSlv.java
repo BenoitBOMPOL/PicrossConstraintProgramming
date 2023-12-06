@@ -130,13 +130,12 @@ public class picrossSlv extends picross{
     }
 
     public static void main(String[] args) {
-        String filename = "./picross/knife.px";
+        String filename = "./picross/tardis.px";
         picrossSlv picross = null;
         try {
             picross = new picrossSlv(filename);
             picross.initEnumeration();
             picross.propagate();
-
 
             picross.initEnumeration();
             int[][] sol = picross.solve();
@@ -145,6 +144,5 @@ public class picrossSlv extends picross{
             System.out.println("[picrossSlv] Instance creation has failed");
             e.printStackTrace();
         }
-
     }
 }
