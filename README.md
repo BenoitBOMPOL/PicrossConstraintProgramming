@@ -4,20 +4,16 @@
 - Creation of a _generic_ picross instance, loaded with ad-hoc `.px` files.
 - For each constraint (tuple, size), enumeration of every solution works.
 - Creation of a picross-solver class, taking the `.px` file location as an input
+- 😮‍💨 : First version of the solver was using reification (`solver.ifThen`) in order to connect bloc start location and (0/1)-variable indicators
 
 [![Generic badge](https://img.shields.io/badge/PICROSS-FIXME-orange.svg)](https://shields.io/)
-- 😮‍💨 : Solver is using reification (`solver.ifThen`) in order to connect bloc start location and (0/1)-variable indicators
-  - (Version ![1.0](https://github.com/BenoitBOMPOL/PicrossConstraintProgramming/releases/tag/v1.0) is using reification)
-  
-- ⚔️ : Solver does not work for middle-size Picross (10x10 Picross grids appear to be the limit)
+- ⚔️ : Solver works well for middle-size grids (36x51 Picross grids is (yet) way too big)
 
 [![Generic badge](https://img.shields.io/badge/PICROSS-TODO-informational.svg)](https://shields.io/)
-- 🧮 : Replacing refication by inequalities (can be done using boolean/MIP-like constraints 🤢)
+- 🧠 : Writing a **checker**, ensuring every solution is correct.
+- ↪️ : Propagation of the constraints, looking for the level of consistency of our model.
+- 🚅 : Benchmarking : How many nodes are used ? How many tuples were enumerated ?
 
 [![Generic badge](https://img.shields.io/badge/PICROSS-NEXT-8A2BE2.svg)](https://shields.io/)
+- ⁉️ : Is there a model with the same consistencies, but using less tuples ?
 - ✍️ : Writing a small report on the whole process
-
-
-## Towards MIP-Like solver
-I'll use `ers[i][k]` as a shortcut for `eff_row_solution[i][k]`, and likewise `erc[j][k]` as a shortcut for `eff_col_solution[j][k]`.
-The following notations goes in the following equations : ![](https://github.com/BenoitBOMPOL/PicrossConstraintProgramming/blob/main/mafs/CP_MAFS.jpg)
