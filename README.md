@@ -5,6 +5,7 @@
 - For each constraint (tuple, size), enumeration of every solution works.
 - Creation of a picross-solver class, taking the `.px` file location as an input
 - 😮‍💨 : First version of the solver was using reification (`solver.ifThen`) in order to connect bloc start location and (0/1)-variable indicators
+- 🥳 : Last version using a (**wayyyyy**) simpler model
 
 [![Generic badge](https://img.shields.io/badge/PICROSS-FIXME-orange.svg)](https://shields.io/)
 - ⚔️ : Solver works well for middle-size grids (36x51 Picross grids is (yet) way too big)
