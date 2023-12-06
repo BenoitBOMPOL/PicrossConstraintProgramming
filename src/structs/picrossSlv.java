@@ -130,7 +130,7 @@ public class picrossSlv extends picross{
     }
 
     public static void main(String[] args) {
-        String filename = "./picross/lepers.px";
+        String filename = "./picross/knife.px";
         picrossSlv picross = null;
         try {
             picross = new picrossSlv(filename);
