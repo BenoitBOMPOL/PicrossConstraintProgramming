@@ -116,6 +116,17 @@ public class picrossSlv extends picross{
         }
     }
 
+    public int count_sols(){
+        int count = 0;
+        initEnumeration();
+        int[][] sol = solve();
+        while (sol != null){
+            count += 1;
+            sol = solve();
+        }
+        return count;
+    }
+
     public void displaysol(int[][] sol){
         for (int i = 0; i < getNbrows(); i++){
             for (int j = 0; j < getNbcols(); j++){
@@ -130,7 +141,7 @@ public class picrossSlv extends picross{
     }
 
     public static void main(String[] args) {
-        String filename = "./picross/tardis.px";
+        String filename = "./picross/knife.px";
         picrossSlv picross = null;
         try {
             picross = new picrossSlv(filename);
@@ -140,6 +151,8 @@ public class picrossSlv extends picross{
             picross.initEnumeration();
             int[][] sol = picross.solve();
             picross.displaysol(sol);
+
+            System.out.println(picross.count_sols() + " solution(s) have been found.");
         } catch (Exception e) {
             System.out.println("[picrossSlv] Instance creation has failed");
             e.printStackTrace();
