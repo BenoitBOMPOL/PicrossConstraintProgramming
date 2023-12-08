@@ -58,6 +58,8 @@ def main():
     fig, ax = initFigure(NB_ROWS, NB_COLS)
     plt.suptitle("PIG : Picross Instance Generator")
     plt.title(f"Instance generated : {OUTPUT_FILENAME}")
+    # img = plt.imread("godzilla.png")
+    # ax.imshow(img, extent = [0, NB_COLS, 0, NB_ROWS])
     
     GRID = [[0 for _ in range(NB_COLS)] for __ in range(NB_ROWS)]
     while True:
