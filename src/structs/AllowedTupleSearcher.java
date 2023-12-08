@@ -131,25 +131,4 @@ public class AllowedTupleSearcher {
         solver.end();
     }
 
-    public static void main(String[] args){
-        int row_size = 22;
-        int[] constraints = {1,1,2,1};
-        AllowedTupleSearcher ats = new AllowedTupleSearcher(constraints, row_size);
-        ats.initEnumeration();
-        try {
-            System.out.println("Informations on the instance : ");
-            System.out.println("\t Instance has " + ats.getConstraints().length + " constraints on a row of length " + ats.getSize() +  ".");
-            System.out.println("\t Constraints : " + Arrays.toString(ats.getConstraints()));
-
-            int[][] solutions = ats.getAllSolutions();
-            int sol_no = 0;
-            for (int [] sol : solutions){
-                ats.displaySolution(sol, sol_no);
-                sol_no++;
-            }
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
 }
