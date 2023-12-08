@@ -6,9 +6,10 @@
 - Creation of a picross-solver class, taking the `.px` file location as an input
 - 😮‍💨 : First version of the solver was using reification (`solver.ifThen`) in order to connect bloc start location and (0/1)-variable indicators
 - 🥳 : Last version using a (**wayyyyy**) simpler model
+- 🐖 : PIG (**P**icross **I**nstance **G**enerator), small python module creating `.px` instances.
 
 [![Generic badge](https://img.shields.io/badge/PICROSS-FIXME-orange.svg)](https://shields.io/)
-- ⚔️ : Solver works well for middle-size grids (36x51 Picross grids is (yet) way too big)
+- ⚔️ : Solver works well for middle-size grids (30x30 Picross grids is (yet) way too big, but depends on the number of tuples enumerated, limit seems to be around ~100000 tuples, which can be quickly reached for bigger Picross with _sparse_ constraints.)
 
 [![Generic badge](https://img.shields.io/badge/PICROSS-TODO-informational.svg)](https://shields.io/)
 - 🧠 : Writing a **checker**, ensuring every solution is correct.
