@@ -141,17 +141,17 @@ public class picrossSlv extends picross{
     }
 
     public static void main(String[] args) {
-        String filename = "./picross/godzilla.px";
+        String filename = args[0];
         picrossSlv picross = null;
+
         try {
             picross = new picrossSlv(filename);
             picross.initEnumeration();
             picross.propagate();
 
-            picross.initEnumeration();
-            int[][] sol = picross.solve();
-            picross.displaysol(sol);
-
+            // picross.initEnumeration();
+            // int[][] sol = picross.solve();
+            // picross.displaysol(sol);
             System.out.println(picross.count_sols() + " solution(s) have been found.");
         } catch (Exception e) {
             System.out.println("[picrossSlv] Instance creation has failed");

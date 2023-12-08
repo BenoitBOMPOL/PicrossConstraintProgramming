@@ -99,7 +99,8 @@ public class picross {
         System.out.println("In total, " + nb_tuple_stored + " tuples were stored.");
     }
     public static void main(String[] args) throws Exception {
-        picross bird = new picross("./picross/godzilla.px");
+        String filename = args[0];
+        picross bird = new picross(filename);
         bird.show_heap_tuples();
     }
 }

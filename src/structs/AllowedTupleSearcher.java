@@ -131,4 +131,13 @@ public class AllowedTupleSearcher {
         solver.end();
     }
 
+    public static void main(String[] args) {
+        int[] constraints = {2, 1, 3};
+        int size = 20;
+        AllowedTupleSearcher ats = new AllowedTupleSearcher(constraints, size);
+        ats.initEnumeration();
+        int[] sol = ats.solve();
+        System.out.println("Sol = " + Arrays.toString(sol));
+    }
+
 }

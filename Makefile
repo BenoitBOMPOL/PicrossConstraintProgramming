@@ -1,38 +1,35 @@
-#---------------------------------------------------#
-# Picross Solver using Constraint Programming Tools #
-# You might need to change the installation folder. #
-#---------------------------------------------------#
-
-SYSTEM		= x86_64_linux
-LIBFORMAT	= static_pic
+# ----------------------------------------------------- #
+# 	Picross Solver using Constraint Programming Tools	#
+# ----------------------------------------------------- #
 
 # CPLEX Installation folder
-# NOTE : Modifications start here
-CPLEXDIR	= /opt/ibm/ILOG/CPLEX_Studio2211/cplex
-CONCERTDIR	= /opt/ibm/ILOG/CPLEX_Studio2211/concert
-# Modifications end here
+CPLEXDIR        = /opt/ibm/ILOG/CPLEX_Studio2211
+OPLALL          = $(CPLEXDIR)/opl/lib/oplall.jar
+GLOBALLIBRARY   = $(CPLEXDIR)/opl/bin/x86-64_linux/
 
-#	--------------------------------------------	#
-#	    Compiler and link options, Libraries		#
-#	--------------------------------------------	#
-JAVAC			= javac
-JOPT			= -classpath $(CPLEXDIR)/lib/cplex.jar
+# Compiler and link options
+JAVAC           = javac
+JAVA            = java
+JOPT = -classpath $(OPLALL):$(GLOBALLIBRARY)
 
-CPLEXBINDIR 	= $(CPLEXDIR)/bin/$(SYSTEM)
-CPLEXJARDIR 	= $(CPLEXDIR)/lib/cplex.jar
-CPLEXLIBDIR 	= $(CPLEXDIR)/lib/$(SYSTEM)/$(LIBFORMAT)
-CONCERTLIBDIR	= $(CONCERTDIR)/lib/$(SYSTEM)/$(LIBFORMAT)
+# Source directories
+STRUCTS_DIR     = src/structs
 
-CPLEXLIBDIR		= cplex$(dynamic:yes=2211)
-run				= $(dynamic:yes=LD_LIBRARY_PATH=$(CPLEXBINDIR))
+# Useful notes :
+# 1. You might need to update LD_LIBRARY_PATH
+#	 Add the following at the end of your .bashrc
+# 	 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/ibm/ILOG/CPLEX_Studio2211/opl/bin/x86-64_linux/
 
-CCLNDIRS  = -L$(CPLEXLIBDIR) -L$(CONCERTLIBDIR) $(dynamic:yes=-L$(CPLEXBINDIR))
-CLNDIRS   = -L$(CPLEXLIBDIR) $(dynamic:yes=-L$(CPLEXBINDIR))
-CCLNFLAGS = -lconcert -lilocplex -l$(CPLEXLIB) -lm -lpthread -ldl
-CLNFLAGS  = -l$(CPLEXLIB) -lm -lpthread -ldl
-JAVA      = java   -Djava.library.path=$(CPLEXDIR)/bin/x86-64_linux -classpath $(CPLEXJARDIR):
+all:
+	make solve
 
-CONCERTINCDIR = $(CONCERTDIR)/include
-CPLEXINCDIR   = $(CPLEXDIR)/include
+build_solve:
+	$(JAVAC) $(JOPT) $(STRUCTS_DIR)/AllowedTupleSearcher.java
+	$(JAVAC) $(JOPT) $(STRUCTS_DIR)/picross.java $(STRUCTS_DIR)/AllowedTupleSearcher.java
+	$(JAVAC) $(JOPT) $(STRUCTS_DIR)/picrossSlv.java $(STRUCTS_DIR)/picross.java $(STRUCTS_DIR)/AllowedTupleSearcher.java
 
-JCFLAGS = $(JOPT)
+
+clean:
+	rm -rf $(STRUCTS_DIR)/*.class
+
+.PHONY: solve
