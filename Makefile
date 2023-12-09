@@ -13,7 +13,7 @@ JAVA            = java
 JOPT = -classpath $(OPLALL):$(GLOBALLIBRARY)
 
 # Source directories
-STRUCTS_DIR     = src/structs
+SRCDIR     		= src
 
 # Useful notes :
 # 1. You might need to update LD_LIBRARY_PATH
@@ -21,15 +21,17 @@ STRUCTS_DIR     = src/structs
 # 	 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/ibm/ILOG/CPLEX_Studio2211/opl/bin/x86-64_linux/
 
 all:
-	make solve
+	make build_solve
 
 build_solve:
-	$(JAVAC) $(JOPT) $(STRUCTS_DIR)/AllowedTupleSearcher.java
-	$(JAVAC) $(JOPT) $(STRUCTS_DIR)/picross.java $(STRUCTS_DIR)/AllowedTupleSearcher.java
-	$(JAVAC) $(JOPT) $(STRUCTS_DIR)/picrossSlv.java $(STRUCTS_DIR)/picross.java $(STRUCTS_DIR)/AllowedTupleSearcher.java
+	$(JAVAC) $(JOPT) $(SRCDIR)/AllowedTupleSearcher.java
+	$(JAVAC) $(JOPT) $(SRCDIR)/picross.java $(SRCDIR)/AllowedTupleSearcher.java
+	$(JAVAC) $(JOPT) $(SRCDIR)/picrossSlv.java $(SRCDIR)/picross.java $(SRCDIR)/AllowedTupleSearcher.java
 
+solve: build_solve
+	$(JAVA) $(JOPT) src/picrossSlv.class
 
 clean:
-	rm -rf $(STRUCTS_DIR)/*.class
+	rm -rf $(SRCDIR)/*.class
 
-.PHONY: solve
+.PHONY: build_solve, solve

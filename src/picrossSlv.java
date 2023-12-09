@@ -141,7 +141,8 @@ public class picrossSlv extends picross{
     }
 
     public static void main(String[] args) {
-        String filename = args[0];
+        // String filename = args[0];
+        String filename = "picross/godzilla.px";
         picrossSlv picross = null;
 
         try {
