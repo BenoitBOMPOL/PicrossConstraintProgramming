@@ -1,4 +1,3 @@
-package structs;
 import java.io.*;
 import java.util.Arrays;
 

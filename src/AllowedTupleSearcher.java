@@ -1,5 +1,3 @@
-package structs;
-
 import ilog.concert.*;
 import ilog.cp.IloCP;
 import java.util.*;

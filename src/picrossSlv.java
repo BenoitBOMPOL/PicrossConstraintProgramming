@@ -1,5 +1,3 @@
-package structs;
-
 import ilog.cp.IloCP;
 import ilog.concert.*;
 
@@ -10,6 +8,8 @@ public class picrossSlv extends picross{
     private IloIntTupleSet[] row_solution;
     private IloIntTupleSet[] col_solution;
     private IloIntVar[][] grid;
+
+    int nbFails;
 
     public int[][] get_solutions(int[] constraints, int size){
         AllowedTupleSearcher ats = new AllowedTupleSearcher(constraints, size);
@@ -39,7 +39,7 @@ public class picrossSlv extends picross{
         try {
             solver = new IloCP();
             solver.setParameter(IloCP.IntParam.LogVerbosity, IloCP.ParameterValues.Quiet);
-            // solver.setParameter(IloCP.IntParam.SearchType, IloCP.ParameterValues.DepthFirst);
+            solver.setParameter(IloCP.IntParam.SearchType, IloCP.ParameterValues.DepthFirst);
             solver.setParameter(IloCP.IntParam.Workers, 1);
 
             for (int i = 0; i < getNbrows(); i++){
@@ -71,6 +71,7 @@ public class picrossSlv extends picross{
 
     public void propagate(){
         try {
+            initEnumeration();
             solver.propagate();
             for (int i = 0; i < getNbrows(); i++){
                 for (int j = 0; j < getNbcols(); j++){
@@ -83,12 +84,14 @@ public class picrossSlv extends picross{
                 }
                 System.out.println();
             }
+            solver.printInformation();
         } catch (IloException e){
             e.printStackTrace();
         }
     }
 
     public int[][] solve(){
+        initEnumeration();
         int[][] sol = null;
         try {
             if (solver.next()){
@@ -99,9 +102,8 @@ public class picrossSlv extends picross{
                     }
                 }
             }
-            solver.printInformation();
-            int nbFails = solver.getInfo(IloCP.IntInfo.NumberOfFails);
-            System.out.println("Fails : " + nbFails);
+
+            this.nbFails = solver.getInfo(IloCP.IntInfo.NumberOfFails);
 
         } catch (IloException e){
             e.printStackTrace();
@@ -116,18 +118,12 @@ public class picrossSlv extends picross{
         }
     }
 
-    public int count_sols(){
-        int count = 0;
-        initEnumeration();
-        int[][] sol = solve();
-        while (sol != null){
-            count += 1;
-            sol = solve();
-        }
-        return count;
-    }
 
     public void displaysol(int[][] sol){
+        if (sol == null){
+            System.out.println("+++ null solution found. +++");
+            return;
+        }
         for (int i = 0; i < getNbrows(); i++){
             for (int j = 0; j < getNbcols(); j++){
                 if (sol[i][j] == 1){
@@ -141,19 +137,15 @@ public class picrossSlv extends picross{
     }
 
     public static void main(String[] args) {
-        // String filename = args[0];
-        String filename = "picross/godzilla.px";
+        String filename = args[0];
         picrossSlv picross = null;
-
         try {
             picross = new picrossSlv(filename);
-            picross.initEnumeration();
-            picross.propagate();
+            int[][] sol = picross.solve();
+            picross.displaysol(sol);
+            System.out.println("Fails : " + picross.nbFails);
+            // picross.propagate();
 
-            // picross.initEnumeration();
-            // int[][] sol = picross.solve();
-            // picross.displaysol(sol);
-            System.out.println(picross.count_sols() + " solution(s) have been found.");
         } catch (Exception e) {
             System.out.println("[picrossSlv] Instance creation has failed");
             e.printStackTrace();

@@ -20,9 +20,25 @@ SRCDIR     		= src
 #	 Add the following at the end of your .bashrc
 # 	 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/ibm/ILOG/CPLEX_Studio2211/opl/bin/x86-64_linux/
 
+AllowedTupleSearcher:
+	$(JAVAC) $(JOPT) $(SRCDIR)/AllowedTupleSearcher.java
+
+run_allowed_tuple_searcher: AllowedTupleSearcher
+	$(JAVA) $(JOPT) $(SRCDIR)/AllowedTupleSearcher.java
+
 solve:
 	$(JAVAC) $(JOPT) $(SRCDIR)/AllowedTupleSearcher.java
 	$(JAVAC) $(JOPT) $(SRCDIR)/picross.java $(SRCDIR)/AllowedTupleSearcher.java
 	$(JAVAC) $(JOPT) $(SRCDIR)/picrossSlv.java $(SRCDIR)/picross.java $(SRCDIR)/AllowedTupleSearcher.java
 
-.PHONY: default solve
+run_solver:
+	$(JAVA) -Xmx4g $(JOPT) -cp $(OPLALL):$(GLOBALLIBRARY):$(SRCDIR) picrossSlv $(ARGS)
+
+benchmark: solve
+	for grid in picross/*.px; do echo Running solver on file "$$grid"...; $(JAVA) $(JOPT) -cp $(OPLALL):$(GLOBALLIBRARY):$(SRCDIR) picrossSlv "$$grid"; echo; done
+
+clean:
+	clear
+	rm -f $(SRCDIR)/*.class
+
+.PHONY: default solve AllowedTupleSearcher run_allowed_tuple_searcher clean benchmark
