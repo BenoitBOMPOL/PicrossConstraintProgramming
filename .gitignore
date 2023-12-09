@@ -1,4 +1,4 @@
 .idea/
 fantastic-eureka.iml
 out/
-src/structs/*.class
+src/*.class

@@ -20,18 +20,9 @@ SRCDIR     		= src
 #	 Add the following at the end of your .bashrc
 # 	 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/ibm/ILOG/CPLEX_Studio2211/opl/bin/x86-64_linux/
 
-all:
-	make build_solve
-
-build_solve:
+solve:
 	$(JAVAC) $(JOPT) $(SRCDIR)/AllowedTupleSearcher.java
 	$(JAVAC) $(JOPT) $(SRCDIR)/picross.java $(SRCDIR)/AllowedTupleSearcher.java
 	$(JAVAC) $(JOPT) $(SRCDIR)/picrossSlv.java $(SRCDIR)/picross.java $(SRCDIR)/AllowedTupleSearcher.java
 
-solve: build_solve
-	$(JAVA) $(JOPT) src/picrossSlv.class
-
-clean:
-	rm -rf $(SRCDIR)/*.class
-
-.PHONY: build_solve, solve
+.PHONY: default solve
