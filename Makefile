@@ -24,7 +24,12 @@ AllowedTupleSearcher:
 	$(JAVAC) $(JOPT) $(SRCDIR)/AllowedTupleSearcher.java
 
 run_allowed_tuple_searcher: AllowedTupleSearcher
-	$(JAVA) $(JOPT) $(SRCDIR)/AllowedTupleSearcher.java
+	$(JAVA) -Xmx4g $(JOPT) $(SRCDIR)/AllowedTupleSearcher.java
+
+enumerate_tuple:
+	$(JAVAC) $(JOPT) $(SRCDIR)/AllowedTupleSearcher.java
+	$(JAVAC) $(JOPT) $(SRCDIR)/picross.java $(SRCDIR)/AllowedTupleSearcher.java
+	$(JAVA) -Xmx12g $(JOPT) -cp $(OPLALL):$(GLOBALLIBRARY):$(SRCDIR) picross $(ARGS)
 
 solve:
 	$(JAVAC) $(JOPT) $(SRCDIR)/AllowedTupleSearcher.java
