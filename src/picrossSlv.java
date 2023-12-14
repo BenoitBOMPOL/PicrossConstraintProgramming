@@ -145,6 +145,11 @@ public class picrossSlv extends picross{
             picross.initEnumeration();
             int[][] sol = picross.solve();
             picross.displaysol(sol);
+            if (picross.is_a_valid_sol(sol)){
+                System.out.println("A valid solution has been found.");
+            } else {
+                System.out.println("The answer provided is incorrect.");
+            }
 
         } catch (Exception e) {
             System.out.println("[picrossSlv] Instance creation has failed");

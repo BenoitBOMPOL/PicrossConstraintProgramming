@@ -68,6 +68,28 @@ public class picross {
         bread.close();
     }
 
+    public boolean is_a_valid_sol(int[][] sol){
+        AllowedTupleSearcher ats = null;
+        for (int i = 0; i < nbrows; i++){
+            ats = new AllowedTupleSearcher(getRow_constraints(i), nbcols);
+            if (!ats.is_valid(sol[i])){
+                return false;
+            }
+        }
+
+        for (int j = 0; j < nbcols; j++){
+            ats = new AllowedTupleSearcher(getCol_constraints(j), nbrows);
+            int[] col = new int[nbrows];
+            for (int i = 0; i < nbrows; i++){
+                col[i] = sol[i][j];
+            }
+            if (!ats.is_valid(col)){
+                return false;
+            }
+        }
+        return true;
+    }
+
     public void show_instance_info(){
         System.out.println("There are " + getNbrows() + " rows and " + getNbcols() + " columns.");
         System.out.println("+++ Constraint on rows +++");
