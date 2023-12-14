@@ -62,6 +62,47 @@ public class AllowedTupleSearcher {
         }
     }
 
+    public boolean is_valid(int[] word){
+        if (word.length != this.size){
+            return false;
+        }
+
+        int index = 0;
+        // Trimming leftmost 0s
+        while (word[index] == 0){
+            index += 1;
+        }
+        for (int i = 0; i < constraints.length - 1; i++){
+            // Checking consecutive 1s
+            for (int j = 0; j < constraints[i]; j++){
+                if (word[index + j] == 0){
+                    return false;
+                }
+            }
+            index += constraints[i];
+            if (word[index] == 1){
+                return false;
+            }
+            while (word[index] == 0){
+                index++;
+            }
+        }
+
+        for (int j = 0; j < constraints[constraints.length - 1]; j++){
+            if (word[index + j] == 0){
+                return false;
+            }
+        }
+        index += constraints[constraints.length - 1];
+        while (index < word.length){
+            if (word[index] == 1){
+                return false;
+            }
+            index++;
+        }
+        return true;
+    }
+
     // sol[i] = (0, 1)
     // sol[i] == 1 ssi la case (i) est coloriée
     public int[] solve(){
@@ -122,8 +163,13 @@ public class AllowedTupleSearcher {
         int size = 20;
         AllowedTupleSearcher ats = new AllowedTupleSearcher(constraints, size);
         ats.initEnumeration();
-        int[] sol = ats.solve();
-        System.out.println("Sol = " + Arrays.toString(sol));
+        int[][] all_sol = ats.getAllSolutions();
+
+        for (int[] sol : all_sol){
+            if (!ats.is_valid(sol)){
+                System.out.println(Arrays.toString(sol) + " is tested invalid but is valid.");
+            }
+        }
     }
 
 }
