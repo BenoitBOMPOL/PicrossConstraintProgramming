@@ -45,5 +45,6 @@ benchmark: solve
 clean:
 	clear
 	rm -f $(SRCDIR)/*.class
+	rm -r out
 
 .PHONY: default solve AllowedTupleSearcher run_allowed_tuple_searcher clean benchmark
