@@ -9,7 +9,7 @@
 - 🐖 : PIG (**P**icross **I**nstance **G**enerator), small python module creating `.px` instances.
 
 [![Generic badge](https://img.shields.io/badge/PICROSS-FIXME-orange.svg)](https://shields.io/)
-- ⚔️ : Solver works well for middle-size grids (30x30 Picross grids is (yet) way too big, but depends on the number of tuples enumerated, limit seems to be around ~100000 tuples, which can be quickly reached for bigger Picross with _sparse_ constraints.)
+- ⚔️ : Solver works well for middle-size grids (30x30 Picross grids is (yet) way too big, but depends on the number of tuples enumerated, limit seems to be around ~300000 tuples, which can be quickly reached for bigger Picross with _sparse_ constraints.)
 
 [![Generic badge](https://img.shields.io/badge/PICROSS-TODO-informational.svg)](https://shields.io/)
 - 🧠 : Writing a **checker**, ensuring every solution is correct.
