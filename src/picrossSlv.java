@@ -1,8 +1,6 @@
 import ilog.cp.IloCP;
 import ilog.concert.*;
 
-import java.util.Arrays;
-
 public class picrossSlv extends picross{
     private IloCP solver;
     private IloIntTupleSet[] row_solution;
@@ -42,12 +40,14 @@ public class picrossSlv extends picross{
             solver.setParameter(IloCP.IntParam.SearchType, IloCP.ParameterValues.DepthFirst);
             solver.setParameter(IloCP.IntParam.Workers, 1);
 
+            // Boolean variables in grid
             for (int i = 0; i < getNbrows(); i++){
                 for (int j = 0; j < getNbcols(); j++){
                     grid[i][j] = solver.intVar(0,  1);
                 }
             }
 
+            // Enumerating solutions for each row
             for (int i = 0; i < getNbrows(); i++){
                 row_solution[i] = solver.intTable(getNbcols());
                 for (int[] sol : get_solutions(row_constraints[i], getNbcols())){
@@ -56,6 +56,7 @@ public class picrossSlv extends picross{
                 solver.add(solver.allowedAssignments(grid[i], row_solution[i]));
             }
 
+            // Enumerating solutions for each column
             for (int j = 0; j < getNbcols(); j++){
                 col_solution[j] = solver.intTable(getNbrows());
                 for (int[] sol : get_solutions(col_constraints[j], getNbrows())){
@@ -79,11 +80,13 @@ public class picrossSlv extends picross{
                         int value = (int) solver.getValue(grid[i][j]);
                         System.out.print(value == 1 ? "⬛" : "⬜");
                     } else {
+                        // Print a red square
                         System.out.print("\uD83D\uDFE5");
                     }
                 }
                 System.out.println();
             }
+
             solver.printInformation();
         } catch (IloException e){
             e.printStackTrace();
@@ -102,9 +105,6 @@ public class picrossSlv extends picross{
                     }
                 }
             }
-
-            this.nbFails = solver.getInfo(IloCP.IntInfo.NumberOfFails);
-
         } catch (IloException e){
             e.printStackTrace();
         }
@@ -117,7 +117,6 @@ public class picrossSlv extends picross{
             e.printStackTrace();
         }
     }
-
 
     public void displaysol(int[][] sol){
         if (sol == null){
@@ -141,10 +140,11 @@ public class picrossSlv extends picross{
         picrossSlv picross = null;
         try {
             picross = new picrossSlv(filename);
+            picross.initEnumeration();
+            picross.propagate();
+            picross.initEnumeration();
             int[][] sol = picross.solve();
             picross.displaysol(sol);
-            System.out.println("Fails : " + picross.nbFails);
-            // picross.propagate();
 
         } catch (Exception e) {
             System.out.println("[picrossSlv] Instance creation has failed");

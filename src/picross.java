@@ -4,7 +4,11 @@ import java.util.Arrays;
 public class picross {
     private int nbrows;    // Numbers of rows in the picross
     private int nbcols;    // Numbers of cols in the picross
+
+    // row_constraints[i][k] represents the length of the k-th bloc of the i-th row.
     protected int[][] row_constraints;
+
+    // col_constraint[j][k] represents the length of the k-th bloc of the j-th column.
     protected int[][] col_constraints;
 
     public int getNbcols() {
@@ -34,6 +38,7 @@ public class picross {
         
         while ((chars = bread.readLine()) != null){
             if (!definedims){
+
                 // Getting numbers of rows and lines in the first line of the file
                 this.nbrows = Integer.parseInt(chars.split(",")[0]);
                 this.nbcols = Integer.parseInt(chars.split(",")[1]);
@@ -100,6 +105,8 @@ public class picross {
     public static void main(String[] args) throws Exception {
         String filename = args[0];
         picross bird = new picross(filename);
+
+        bird.show_instance_info();
         bird.show_heap_tuples();
     }
 }

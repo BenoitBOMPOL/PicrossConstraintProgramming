@@ -8,18 +8,6 @@ public class AllowedTupleSearcher {
     private final int[] constraints;
     private IloIntVar[] start;
 
-    public int getSize() {
-        return size;
-    }
-
-    public int[] getConstraints() {
-        return constraints;
-    }
-
-    public int get_ith_constraint(int i){
-        return constraints[i];
-    }
-
     public AllowedTupleSearcher(int[] constraints, int size){
         this.constraints = constraints;
         this.start = new IloIntVar[constraints.length];
