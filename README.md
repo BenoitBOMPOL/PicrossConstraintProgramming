@@ -18,5 +18,9 @@
 
 [![Generic badge](https://img.shields.io/badge/PICROSS-NEXT-8A2BE2.svg)](https://shields.io/)
 - ⁉️ : Is there a model with the same consistencies, but using less tuples ?
-- Towards regex : If constraints are $\{a, b, c\}$, then 0*{a}10+{b}10+{c}10* seems to be a regex detecting valid patterns (assumming correct length)
-- ✍️ : Writing a small report on the whole process
+-   1. This can be done using DFAs (cf. ![Choco Solver](https://choco-solver.org/tutos/nonogram/), however there is no DFA / regular on CPLEX).
+- ✍️ : Writing a small report on the whole process (cf. ![Overleaf](https://fr.overleaf.com/read/bxgrsftxdxhn#3cfc43) ).
+
+
+[![Generic badge](https://img.shields.io/badge/PICROSS-MATHS_NEXT-8A2BE2.svg)](https://shields.io/)
+- Algebraic formulation for a picross instance
