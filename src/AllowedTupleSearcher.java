@@ -159,8 +159,8 @@ public class AllowedTupleSearcher {
     }
 
     public static void main(String[] args) {
-        int[] constraints = {2, 1, 3};
-        int size = 20;
+        int[] constraints = {1, 4, 2};
+        int size = 12;
         AllowedTupleSearcher ats = new AllowedTupleSearcher(constraints, size);
         ats.initEnumeration();
         int[][] all_sol = ats.getAllSolutions();
@@ -168,6 +168,8 @@ public class AllowedTupleSearcher {
         for (int[] sol : all_sol){
             if (!ats.is_valid(sol)){
                 System.out.println(Arrays.toString(sol) + " is tested invalid but is valid.");
+            } else {
+                System.out.println(Arrays.toString(sol) + " is a valid solution.");
             }
         }
     }
