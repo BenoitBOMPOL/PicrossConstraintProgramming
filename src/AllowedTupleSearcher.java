@@ -165,6 +165,8 @@ public class AllowedTupleSearcher {
         ats.initEnumeration();
         int[][] all_sol = ats.getAllSolutions();
 
+        System.out.println(all_sol.length + " (potential) solutions have been found.");
+
         for (int[] sol : all_sol){
             if (!ats.is_valid(sol)){
                 System.out.println(Arrays.toString(sol) + " is tested invalid but is valid.");

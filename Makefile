@@ -37,7 +37,7 @@ solve:
 	$(JAVAC) $(JOPT) $(SRCDIR)/picrossSlv.java $(SRCDIR)/picross.java $(SRCDIR)/AllowedTupleSearcher.java
 
 run_solver:
-	$(JAVA) -Xmx4096M -Xms4096M $(JOPT) -cp $(OPLALL):$(GLOBALLIBRARY):$(SRCDIR) picrossSlv $(ARGS)
+	$(JAVA) -Xmx1024M -Xms1024M $(JOPT) -cp $(OPLALL):$(GLOBALLIBRARY):$(SRCDIR) picrossSlv $(ARGS)
 
 benchmark: solve
 	for grid in picross/*.px; do echo Running solver on file "$$grid"...; $(JAVA) $(JOPT) -cp $(OPLALL):$(GLOBALLIBRARY):$(SRCDIR) picrossSlv "$$grid"; echo; done

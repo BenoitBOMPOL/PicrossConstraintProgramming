@@ -50,6 +50,7 @@ public class picrossSlv extends picross{
             // Enumerating solutions for each row
             for (int i = 0; i < getNbrows(); i++){
                 row_solution[i] = solver.intTable(getNbcols());
+                System.out.println("Enumerating solutions for row no. " + i);
                 for (int[] sol : get_solutions(row_constraints[i], getNbcols())){
                     solver.addTuple(row_solution[i], sol);
                 }
@@ -59,6 +60,7 @@ public class picrossSlv extends picross{
             // Enumerating solutions for each column
             for (int j = 0; j < getNbcols(); j++){
                 col_solution[j] = solver.intTable(getNbrows());
+                System.out.println("Enumerating solutions for col no. " + j);
                 for (int[] sol : get_solutions(col_constraints[j], getNbrows())){
                     solver.addTuple(col_solution[j], sol);
                 }
