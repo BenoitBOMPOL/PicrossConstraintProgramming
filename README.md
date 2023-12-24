@@ -11,6 +11,7 @@
 
 [![Generic badge](https://img.shields.io/badge/PICROSS-FIXME-orange.svg)](https://shields.io/)
 - ⚔️ : First version of the solver works well for middle-size grids, but fails to load whenever too many tuples are possible.
+- 🤔 : Current version does not (yet) capture every human reasoning, but bigger instances can be loaded. (Roughly every 15x15 grid can be solved)
 
 [![Generic badge](https://img.shields.io/badge/PICROSS-TODO-informational.svg)](https://shields.io/)
 - ↪️ : Propagation of the constraints, looking for the level of consistency of our model.
