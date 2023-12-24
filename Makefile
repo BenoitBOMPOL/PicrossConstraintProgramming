@@ -13,35 +13,37 @@ JAVA            = java
 JOPT = -classpath $(OPLALL):$(GLOBALLIBRARY)
 
 # Source directories
-NAIVESRC		= src/naive
-SMARTSRC 		= src/smarter
+SRCDIR     		= src
 
-build_naive_solver:
-	$(JAVAC) $(JOPT) $(NAIVESRC)/AllowedTupleSearcher.java
-	$(JAVAC) $(JOPT) $(NAIVESRC)/picross.java $(NAIVESRC)/AllowedTupleSearcher.java
-	$(JAVAC) $(JOPT) $(NAIVESRC)/picrossSlv.java $(NAIVESRC)/picross.java $(NAIVESRC)/AllowedTupleSearcher.java
+# Useful notes :
+# 1. You might need to update LD_LIBRARY_PATH
+#	 Add the following at the end of your .bashrc
+# 	 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/ibm/ILOG/CPLEX_Studio2211/opl/bin/x86-64_linux/
 
-run_naive_solver:
-	$(JAVA) -Xmx1024M -Xms1024M $(JOPT) -cp $(OPLALL):$(GLOBALLIBRARY):$(NAIVESRC) picrossSlv $(ARGS)
+AllowedTupleSearcher:
+	$(JAVAC) $(JOPT) $(SRCDIR)/AllowedTupleSearcher.java
 
-run_naive_benchmark: build_naive_solver
-	echo "+++ Naive Solver Benchmark +++"; for grid in picross/*.px; do echo Running solver on file "$$grid"...; $(JAVA) $(JOPT) -cp $(OPLALL):$(GLOBALLIBRARY):$(NAIVESRC) picrossSlv "$$grid"; echo; done
+run_allowed_tuple_searcher: AllowedTupleSearcher
+	$(JAVA) -Xmx4g $(JOPT) $(SRCDIR)/AllowedTupleSearcher.java
 
-build_smart_solver:
-	$(JAVAC) $(JOPT) $(SMARTSRC)/OneLineSolver.java
-	$(JAVAC) $(JOPT) $(SMARTSRC)/picross.java $(SMARTSRC)/OneLineSolver.java
-	$(JAVAC) $(JOPT) $(SMARTSRC)/picrossBetterSlv.java $(SMARTSRC)/picross.java $(SMARTSRC)/OneLineSolver.java
+enumerate_tuple:
+	$(JAVAC) $(JOPT) $(SRCDIR)/AllowedTupleSearcher.java
+	$(JAVAC) $(JOPT) $(SRCDIR)/picross.java $(SRCDIR)/AllowedTupleSearcher.java
+	$(JAVA) $(JOPT) -cp $(OPLALL):$(GLOBALLIBRARY):$(SRCDIR) picross $(ARGS)
 
-run_smart_solver:
-	$(JAVA) -Xmx1024M -Xms1024M $(JOPT) -cp $(OPLALL):$(GLOBALLIBRARY):$(SMARTSRC) picrossBetterSlv $(ARGS)
+solve:
+	$(JAVAC) $(JOPT) $(SRCDIR)/AllowedTupleSearcher.java
+	$(JAVAC) $(JOPT) $(SRCDIR)/picross.java $(SRCDIR)/AllowedTupleSearcher.java
+	$(JAVAC) $(JOPT) $(SRCDIR)/picrossSlv.java $(SRCDIR)/picross.java $(SRCDIR)/AllowedTupleSearcher.java
 
-run_smart_benchmark: build_smart_solver
-	echo "+++ Smart Solver Benchmark +++"; for grid in picross/*.px; do echo Running solver on file "$$grid"...; $(JAVA) $(JOPT) -cp $(OPLALL):$(GLOBALLIBRARY):$(SMARTSRC) picrossBetterSlv "$$grid"; echo; done
+run_solver:
+	$(JAVA) -Xmx1024M -Xms1024M $(JOPT) -cp $(OPLALL):$(GLOBALLIBRARY):$(SRCDIR) picrossSlv $(ARGS)
 
+benchmark: solve
+	for grid in picross/*.px; do echo Running solver on file "$$grid"...; $(JAVA) $(JOPT) -cp $(OPLALL):$(GLOBALLIBRARY):$(SRCDIR) picrossSlv "$$grid"; echo; done
 
 clean:
 	clear
-	rm -f $(NAIVESRC)/*.class
-	rm -f $(SMARTSRC)/*.class
-	
-.PHONY: default clean build_naive_solver run_naive_solver run_naive_benchmark build_smart_solver run_smart_solver run_smart_benchmark 
+	rm -f $(SRCDIR)/*.class
+
+.PHONY: default solve AllowedTupleSearcher run_allowed_tuple_searcher clean benchmark
