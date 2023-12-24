@@ -3,27 +3,10 @@ import ilog.concert.*;
 
 public class picrossSlv extends picross{
     private IloCP solver;
-    private IloIntTupleSet[] row_solution;
-    private IloIntTupleSet[] col_solution;
+
     private IloIntVar[][] grid;
-
-    int nbFails;
-
-    public int[][] get_solutions(int[] constraints, int size){
-        AllowedTupleSearcher ats = new AllowedTupleSearcher(constraints, size);
-        return ats.getAllSolutions();
-    }
-
-
-    public picrossSlv(String filename) throws Exception {
-        super(filename);
-
-        this.row_solution = new IloIntTupleSet[getNbrows()];
-        this.col_solution = new IloIntTupleSet[getNbcols()];
-        this.grid = new IloIntVar[getNbrows()][getNbcols()];
-
-        stateModel();
-    }
+    private IloIntVar[][] X; // X[i][k] is the starting position of the k-th bloc in row i
+    private IloIntVar[][] Y; // Y[j][l] is the starting position of the l-th bloc in column j
 
     public IloIntVar[] get_jth_col(int j){
         IloIntVar[] col = new IloIntVar[getNbrows()];
@@ -31,6 +14,24 @@ public class picrossSlv extends picross{
             col[i] = grid[i][j];
         }
         return col;
+    }
+
+
+    public picrossSlv(String filename) throws Exception {
+        super(filename);
+
+        this.grid = new IloIntVar[getNbrows()][getNbcols()];
+        this.X = new IloIntVar[getNbrows()][];
+        for (int i = 0; i < getNbrows(); i++){
+            X[i] = new IloIntVar[getRow_constraints(i).length];
+        }
+
+        this.Y = new IloIntVar[getNbcols()][];
+        for (int j = 0; j < getNbcols(); j++){
+            Y[j] = new IloIntVar[getCol_constraints(j).length];
+        }
+
+        stateModel();
     }
 
     public void stateModel(){
@@ -43,30 +44,116 @@ public class picrossSlv extends picross{
             // Boolean variables in grid
             for (int i = 0; i < getNbrows(); i++){
                 for (int j = 0; j < getNbcols(); j++){
-                    grid[i][j] = solver.intVar(0,  1);
+                    grid[i][j] = solver.intVar(0, 1);
                 }
             }
 
-            // Enumerating solutions for each row
             for (int i = 0; i < getNbrows(); i++){
-                row_solution[i] = solver.intTable(getNbcols());
-                System.out.println("Enumerating solutions for row no. " + i);
-                for (int[] sol : get_solutions(row_constraints[i], getNbcols())){
-                    solver.addTuple(row_solution[i], sol);
+                for (int k = 0; k < getRow_constraints(i).length; k++){
+                    X[i][k] = solver.intVar(0, getNbcols() - 1);
                 }
-                solver.add(solver.allowedAssignments(grid[i], row_solution[i]));
             }
 
-            // Enumerating solutions for each column
             for (int j = 0; j < getNbcols(); j++){
-                col_solution[j] = solver.intTable(getNbrows());
-                System.out.println("Enumerating solutions for col no. " + j);
-                for (int[] sol : get_solutions(col_constraints[j], getNbrows())){
-                    solver.addTuple(col_solution[j], sol);
+                for (int l = 0; l < getCol_constraints(j).length; l++){
+                    Y[j][l] = solver.intVar(0, getNbrows() - 1);
                 }
-                solver.add(solver.allowedAssignments(get_jth_col(j), col_solution[j]));
             }
 
+            // TODO : Set constraints
+            for (int i = 0; i < getNbrows(); i++){
+                int blocs_in_row_i = 0;
+                for (int p : getRow_constraints(i)){
+                    blocs_in_row_i += p;
+                }
+                solver.add(solver.eq(solver.sum(grid[i]), blocs_in_row_i));
+            }
+
+            for (int j = 0; j < getNbcols(); j++){
+                int blocs_in_col_j = 0;
+                for (int q : getCol_constraints(j)){
+                    blocs_in_col_j += q;
+                }
+                solver.add(solver.eq(solver.sum(get_jth_col(j)), blocs_in_col_j));
+            }
+
+            for (int i = 0; i < getNbrows(); i++){
+                for (int k = 0; k < getRow_constraints(i).length - 1; k++){
+                    solver.add(solver.le(solver.sum(X[i][k], getRow_constraints(i)[k] + 1), X[i][k + 1]));
+                }
+            }
+
+            for (int j = 0; j < getNbcols(); j++){
+                for (int l = 0; l < getCol_constraints(j).length - 1; l++){
+                    solver.add(solver.le(solver.sum(Y[j][l], getCol_constraints(j)[l] + 1), Y[j][l + 1]));
+                }
+            }
+
+            for (int i = 0; i < getNbrows(); i++){
+                for (int j = 0; j < getNbcols(); j++){
+                    IloConstraint[] activ = new IloConstraint[getRow_constraints(i).length];
+                    for (int s = 0; s < getRow_constraints(i).length; s++){
+                        activ[s] = solver.and(solver.le(X[i][s], j), solver.ge(X[i][s], j - getRow_constraints(i)[s] + 1));
+                    }
+                    solver.add(solver.ifThen(solver.eq(grid[i][j], 1), solver.or(activ)));
+                    solver.add(solver.ifThen(solver.or(activ), solver.eq(grid[i][j], 1)));
+                }
+            }
+
+            for (int j = 0; j < getNbcols(); j++){
+                for (int i = 0; i < getNbrows(); i++){
+                    IloConstraint[] cactiv = new IloConstraint[getCol_constraints(j).length];
+                    for (int t = 0; t < getCol_constraints(j).length; t++){
+                        cactiv[t] = solver.and(solver.le(Y[j][t], i), solver.ge(Y[j][t], i - getCol_constraints(j)[t] + 1));
+                    }
+                    solver.add(solver.ifThen(solver.eq(grid[i][j], 1), solver.or(cactiv)));
+                    solver.add(solver.ifThen(solver.or(cactiv), solver.eq(grid[i][j], 1)));
+                }
+            }
+
+            // Test : stack leftmost task
+            for (int i = 0; i < getNbrows(); i++){
+                for (int k = 0; k < getRow_constraints(i).length; k++){
+                    int sum_proc_before = 0;
+                    for (int k_pr = 0; k_pr < k; k_pr++){
+                        sum_proc_before += getRow_constraints(i)[k_pr];
+                    }
+                    solver.add(solver.ge(X[i][k], sum_proc_before + k));
+                }
+            }
+
+            // Test : stack leftmost task
+            for (int j = 0; j < getNbcols(); j++){
+                for (int k = 0; k < getCol_constraints(j).length; k++){
+                    int sum_proc_before = 0;
+                    for (int k_pr = 0; k_pr < k; k_pr++){
+                        sum_proc_before += getCol_constraints(j)[k_pr];
+                    }
+                    solver.add(solver.ge(Y[j][k], sum_proc_before + k));
+                }
+            }
+
+            // Test : stack rightmost
+            for (int i = 0; i < getNbrows(); i++){
+                for (int k = 0; k < getRow_constraints(i).length; k++){
+                    int sumrow = 0;
+                    for (int kpr = k; kpr < getRow_constraints(i).length; kpr++){
+                        sumrow += getRow_constraints(i)[kpr];
+                    }
+                    solver.add(solver.le(X[i][k], getNbcols() - getRow_constraints(i).length + k + 1 - sumrow));
+                }
+            }
+
+            // Test : stack rightmost
+            for (int j = 0; j < getNbcols(); j++){
+                for (int k = 0; k < getCol_constraints(j).length; k++){
+                    int sumcol = 0;
+                    for (int kpr = k; kpr < getCol_constraints(j).length; kpr++){
+                        sumcol += getCol_constraints(j)[kpr];
+                    }
+                    solver.add(solver.le(Y[j][k], getNbrows() - getCol_constraints(j).length + k + 1 - sumcol));
+                }
+            }
         } catch (IloException e){
             e.printStackTrace();
         }
@@ -96,10 +183,10 @@ public class picrossSlv extends picross{
     }
 
     public int[][] solve(){
-        initEnumeration();
         int[][] sol = null;
         try {
             if (solver.next()){
+
                 sol = new int[getNbrows()][getNbcols()];
                 for (int i = 0; i < getNbrows(); i++){
                     for (int j = 0; j < getNbcols(); j++){
@@ -107,6 +194,9 @@ public class picrossSlv extends picross{
                     }
                 }
             }
+
+            // int nbFails = solver.getInfo(IloCP.IntInfo.NumberOfFails);
+            // System.out.println("Number of fails : " + nbFails);
         } catch (IloException e){
             e.printStackTrace();
         }
@@ -137,6 +227,21 @@ public class picrossSlv extends picross{
         }
     }
 
+    public int count_sols(){
+        int count = 0;
+        initEnumeration();
+        int[][] sol = solve();
+        displaysol(sol);
+        while (sol != null) {
+            count += 1;
+            sol = solve();
+            if (sol != null) {
+                displaysol(sol);
+            }
+        }
+        return count;
+    }
+
     public static void main(String[] args) {
         String filename = args[0];
         picrossSlv picross = null;
@@ -152,7 +257,6 @@ public class picrossSlv extends picross{
             } else {
                 System.out.println("The answer provided is incorrect.");
             }
-
         } catch (Exception e) {
             System.out.println("[picrossSlv] Instance creation has failed");
             e.printStackTrace();

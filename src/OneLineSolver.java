@@ -2,16 +2,22 @@ import ilog.concert.*;
 import ilog.cp.IloCP;
 import java.util.*;
 
-public class AllowedTupleSearcher {
+
+public class OneLineSolver {
     private IloCP solver;
     private final int size;
     private final int[] constraints;
-    private IloIntVar[] start;
 
-    public AllowedTupleSearcher(int[] constraints, int size){
+    private IloIntVar[] b; // b[i] in {0, 1}
+    private IloIntVar[] x; // x[j] in {1..n}
+
+    public OneLineSolver(int[] constraints, int size){
         this.constraints = constraints;
-        this.start = new IloIntVar[constraints.length];
         this.size = size;
+
+        this.x = new IloIntVar[constraints.length];
+        this.b = new IloIntVar[size];
+
         stateModel();
     }
 
@@ -23,35 +29,37 @@ public class AllowedTupleSearcher {
             solver.setParameter(IloCP.IntParam.Workers, 1);
 
             // Creation of the variables
-            for (int i = 0; i < constraints.length; i++){
-                this.start[i] = solver.intVar(0,size-1, "C[" + i + "]");
+            for (int j = 0; j < constraints.length; j++) {
+                x[j] = solver.intVar(0, this.size - 1);
+            }
+            for (int i = 0; i < size; i++) {
+                b[i] = solver.intVar(0, 1);
             }
 
             // Adding constraints
-            // Constraint 1 : "Better" overlap
-            for (int i = 0; i < constraints.length - 1; i++){
-                solver.add(solver.ge(
-                        this.start[i + 1],
-                        solver.sum(1 + constraints[i], this.start[i]))
-                );
+            int somme_p = 0;
+            for (int p : constraints) {
+                somme_p += p;
+            }
+            solver.add(solver.eq(solver.sum(b), somme_p));
+
+            for (int j = 0; j < constraints.length - 1; j++) {
+                solver.add(solver.le(solver.sum(x[j], constraints[j] + 1), x[j + 1]));
             }
 
-            // Ensuring that each block ends before the size of the line
-            for (int i = 0; i < constraints.length; i++){
-                solver.add(solver.le(
-                        solver.sum(this.start[i], constraints[i]),
-                        size
-                ));
+            for (int i = 0; i < size; i++) {
+                IloConstraint[] or_constraints = new IloConstraint[constraints.length];
+                for (int j = 0; j < constraints.length; j++) {
+                    or_constraints[j] = solver.and(solver.le(x[j], i), solver.ge(x[j], i - constraints[j] + 1));
+                }
+                solver.add(solver.ifThen(solver.eq(b[i], 1), solver.or(or_constraints)));
+                solver.add(solver.ifThen(solver.or(or_constraints), solver.eq(b[i], 1)));
             }
+
 
         } catch (IloException e) {
             e.printStackTrace();
         }
-    }
-
-    public void displaySolution(int[] sol, int sol_no){
-        System.out.println("+++ Solution " + sol_no + " under constraints " + Arrays.toString(constraints) + " and size " + size + ".");
-        System.out.println("\t" + Arrays.toString(sol));
     }
 
     public void initEnumeration() {
@@ -111,15 +119,7 @@ public class AllowedTupleSearcher {
             if (solver.next()){
                 sol = new int[this.size];
                 for (int i = 0; i < size; i++){
-                    sol[i] = 0;
-                }
-
-                for (int k = 0; k < constraints.length; k++){
-                    int length = constraints[k];
-                    int start_ = (int) solver.getValue(start[k]);
-                    for (int i = start_; i < start_ + length; i++){
-                        sol[i] = 1;
-                    }
+                    sol[i] = (int) solver.getValue(b[i]);
                 }
             }
         } catch (IloException e){
@@ -161,19 +161,18 @@ public class AllowedTupleSearcher {
     public static void main(String[] args) {
         int[] constraints = {1, 4, 2};
         int size = 12;
-        AllowedTupleSearcher ats = new AllowedTupleSearcher(constraints, size);
-        ats.initEnumeration();
-        int[][] all_sol = ats.getAllSolutions();
+        OneLineSolver ols = new OneLineSolver(constraints, size);
+        ols.initEnumeration();
+        int[][] all_sol = ols.getAllSolutions();
 
-        System.out.println(all_sol.length + " (potential) solutions have been found.");
-
-        for (int[] sol : all_sol){
-            if (!ats.is_valid(sol)){
+        System.out.println(all_sol.length + " (potential) soutions have been found.");
+        /* for (int[] sol : all_sol){
+            if (!ols.is_valid(sol)){
                 System.out.println(Arrays.toString(sol) + " is tested invalid but is valid.");
             } else {
                 System.out.println(Arrays.toString(sol) + " is a valid solution.");
             }
-        }
+        } */
     }
 
 }

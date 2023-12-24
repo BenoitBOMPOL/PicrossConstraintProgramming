@@ -69,16 +69,16 @@ public class picross {
     }
 
     public boolean is_a_valid_sol(int[][] sol){
-        AllowedTupleSearcher ats = null;
+        OneLineSolver ats = null;
         for (int i = 0; i < nbrows; i++){
-            ats = new AllowedTupleSearcher(getRow_constraints(i), nbcols);
+            ats = new OneLineSolver(getRow_constraints(i), nbcols);
             if (!ats.is_valid(sol[i])){
                 return false;
             }
         }
 
         for (int j = 0; j < nbcols; j++){
-            ats = new AllowedTupleSearcher(getCol_constraints(j), nbrows);
+            ats = new OneLineSolver(getCol_constraints(j), nbrows);
             int[] col = new int[nbrows];
             for (int i = 0; i < nbrows; i++){
                 col[i] = sol[i][j];
@@ -106,7 +106,7 @@ public class picross {
         int nb_tuple_stored = 0;
         for (int i = 0; i < getNbrows(); i++){
             int[] constraints = getRow_constraints(i);
-            AllowedTupleSearcher ats = new AllowedTupleSearcher(constraints, getNbcols());
+            OneLineSolver ats = new OneLineSolver(constraints, getNbcols());
             int [][] solutions = ats.getAllSolutions();
             int nb_solutions = solutions.length;
             nb_tuple_stored += solutions.length;
@@ -115,7 +115,7 @@ public class picross {
         System.out.println();
         for (int j = 0; j < getNbcols(); j++){
             int[] constraints = getCol_constraints(j);
-            AllowedTupleSearcher ats = new AllowedTupleSearcher(constraints, getNbrows());
+            OneLineSolver ats = new OneLineSolver(constraints, getNbrows());
             int [][] solutions = ats.getAllSolutions();
             int nb_solutions = solutions.length;
             nb_tuple_stored += solutions.length;

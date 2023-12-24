@@ -20,30 +20,39 @@ SRCDIR     		= src
 #	 Add the following at the end of your .bashrc
 # 	 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/ibm/ILOG/CPLEX_Studio2211/opl/bin/x86-64_linux/
 
-AllowedTupleSearcher:
-	$(JAVAC) $(JOPT) $(SRCDIR)/AllowedTupleSearcher.java
+all:
+	@clear
+	@echo 🟥🟩🟦 Picross Solver 🟦🟩🟥
+	@echo 
+	@echo Here are the following available commands
+	@echo -e '\t'1. make onelinesolver
+	@echo -e '\t\t' Solve the 1-line problem described in $(SRCDIR)/OneLineSolver.java'\n'
+	@echo -e '\t'2. make buildsolver
+	@echo -e '\t\t' Build necessary files for the solver.'\n'
+	@echo -e '\t'3. make solve GRID=\"picross/godzilla.px\"
+	@echo -e '\t\t' Solve the grid located at \"picross/godzilla.px\"'\n'
+	@echo -e '\t'4. make benchmark
+	@echo -e '\t\t' Solve every grid in the picross folder'\n'
+	@echo -e '\t'5. make clean
+	@echo -e '\t\t' Remove .class files
 
-run_allowed_tuple_searcher: AllowedTupleSearcher
-	$(JAVA) -Xmx4g $(JOPT) $(SRCDIR)/AllowedTupleSearcher.java
 
-enumerate_tuple:
-	$(JAVAC) $(JOPT) $(SRCDIR)/AllowedTupleSearcher.java
-	$(JAVAC) $(JOPT) $(SRCDIR)/picross.java $(SRCDIR)/AllowedTupleSearcher.java
-	$(JAVA) $(JOPT) -cp $(OPLALL):$(GLOBALLIBRARY):$(SRCDIR) picross $(ARGS)
+onelinesolver:
+	@$(JAVAC) $(JOPT) $(SRCDIR)/OneLineSolver.java
+	@$(JAVA) -Xmx4g $(JOPT) $(SRCDIR)/OneLineSolver.java
 
-solve:
-	$(JAVAC) $(JOPT) $(SRCDIR)/AllowedTupleSearcher.java
-	$(JAVAC) $(JOPT) $(SRCDIR)/picross.java $(SRCDIR)/AllowedTupleSearcher.java
-	$(JAVAC) $(JOPT) $(SRCDIR)/picrossSlv.java $(SRCDIR)/picross.java $(SRCDIR)/AllowedTupleSearcher.java
+buildsolver:
+	@$(JAVAC) $(JOPT) $(SRCDIR)/OneLineSolver.java
+	@$(JAVAC) $(JOPT) $(SRCDIR)/picross.java $(SRCDIR)/OneLineSolver.java
+	@$(JAVAC) $(JOPT) $(SRCDIR)/picrossSlv.java $(SRCDIR)/picross.java $(SRCDIR)/OneLineSolver.java
 
-run_solver:
-	$(JAVA) -Xmx1024M -Xms1024M $(JOPT) -cp $(OPLALL):$(GLOBALLIBRARY):$(SRCDIR) picrossSlv $(ARGS)
+solve: buildsolver
+	$(JAVA) -Xmx1024M -Xms1024M $(JOPT) -cp $(OPLALL):$(GLOBALLIBRARY):$(SRCDIR) picrossSlv $(GRID)
 
-benchmark: solve
+benchmark: buildsolver
 	for grid in picross/*.px; do echo Running solver on file "$$grid"...; $(JAVA) $(JOPT) -cp $(OPLALL):$(GLOBALLIBRARY):$(SRCDIR) picrossSlv "$$grid"; echo; done
 
 clean:
-	clear
-	rm -f $(SRCDIR)/*.class
+	@rm -f $(SRCDIR)/*.class
 
-.PHONY: default solve AllowedTupleSearcher run_allowed_tuple_searcher clean benchmark
+.PHONY: default clean
