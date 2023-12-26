@@ -154,6 +154,48 @@ public class picrossSlv extends picross{
                     solver.add(solver.le(Y[j][k], getNbrows() - getCol_constraints(j).length + k + 1 - sumcol));
                 }
             }
+
+            for (int i = 0; i < getNbrows(); i++){
+                for (int ki = 0; ki < getRow_constraints(i).length; ki++){
+                    for (int j = 0; j < getNbcols(); j++){
+                        if (j > 0) {
+                            solver.add(
+                                    solver.ifThen(
+                                            solver.eq(X[i][ki], j),
+                                            solver.eq(grid[i][j - 1], 0)
+                                    )
+                            );
+                        }
+                        if (j + getRow_constraints(i)[ki] < getNbcols()){
+                            solver.add(solver.ifThen(
+                                    solver.eq(X[i][ki], j),
+                                    solver.eq(grid[i][j + getRow_constraints(i)[ki]], 0)
+                            ));
+                        }
+                    }
+                }
+            }
+
+            for (int j = 0; j < getNbcols(); j++){
+                for (int kj = 0; kj < getCol_constraints(j).length; kj++){
+                    for (int i = 0; i < getNbrows(); i++){
+                        if (i > 0){
+                            solver.add(solver.ifThen(
+                                    solver.eq(Y[j][kj], i),
+                                    solver.eq(grid[i-1][j], 0)
+                            ));
+                        }
+
+                        if (i + getCol_constraints(j)[kj] < getNbrows()){
+                            solver.add(solver.ifThen(
+                                    solver.eq(Y[j][kj], i),
+                                    solver.eq(grid[i + getCol_constraints(j)[kj]][j], 0)
+                            ));
+                        }
+                    }
+                }
+            }
+
         } catch (IloException e){
             e.printStackTrace();
         }
@@ -163,6 +205,7 @@ public class picrossSlv extends picross{
         try {
             initEnumeration();
             solver.propagate();
+            int count_unfixed_vars = 0;
             for (int i = 0; i < getNbrows(); i++){
                 for (int j = 0; j < getNbcols(); j++){
                     if (solver.isFixed(grid[i][j])){
@@ -170,11 +213,13 @@ public class picrossSlv extends picross{
                         System.out.print(value == 1 ? "⬛" : "⬜");
                     } else {
                         // Print a red square
+                        count_unfixed_vars++;
                         System.out.print("\uD83D\uDFE5");
                     }
                 }
                 System.out.println();
             }
+            System.out.println(count_unfixed_vars + " cells are undetermined.");
 
             solver.printInformation();
         } catch (IloException e){
