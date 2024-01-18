@@ -60,7 +60,7 @@ public class picrossSlv extends picross{
                 }
             }
 
-            // TODO : Set constraints
+            // NOTE : (1A)
             for (int i = 0; i < getNbrows(); i++){
                 int blocs_in_row_i = 0;
                 for (int p : getRow_constraints(i)){
@@ -69,6 +69,7 @@ public class picrossSlv extends picross{
                 solver.add(solver.eq(solver.sum(grid[i]), blocs_in_row_i));
             }
 
+            // NOTE : (1B)
             for (int j = 0; j < getNbcols(); j++){
                 int blocs_in_col_j = 0;
                 for (int q : getCol_constraints(j)){
@@ -77,18 +78,23 @@ public class picrossSlv extends picross{
                 solver.add(solver.eq(solver.sum(get_jth_col(j)), blocs_in_col_j));
             }
 
+            // NOTE : (1C)
             for (int i = 0; i < getNbrows(); i++){
                 for (int k = 0; k < getRow_constraints(i).length - 1; k++){
                     solver.add(solver.le(solver.sum(X[i][k], getRow_constraints(i)[k] + 1), X[i][k + 1]));
                 }
             }
 
+            // NOTE : (1D)
             for (int j = 0; j < getNbcols(); j++){
                 for (int l = 0; l < getCol_constraints(j).length - 1; l++){
                     solver.add(solver.le(solver.sum(Y[j][l], getCol_constraints(j)[l] + 1), Y[j][l + 1]));
                 }
             }
 
+
+
+            // NOTE : (1E)
             for (int i = 0; i < getNbrows(); i++){
                 for (int j = 0; j < getNbcols(); j++){
                     IloConstraint[] activ = new IloConstraint[getRow_constraints(i).length];
@@ -100,6 +106,7 @@ public class picrossSlv extends picross{
                 }
             }
 
+            // NOTE : (1F)
             for (int j = 0; j < getNbcols(); j++){
                 for (int i = 0; i < getNbrows(); i++){
                     IloConstraint[] cactiv = new IloConstraint[getCol_constraints(j).length];
@@ -111,6 +118,8 @@ public class picrossSlv extends picross{
                 }
             }
 
+
+            // NOTE : (1G)
             // Test : stack leftmost task
             for (int i = 0; i < getNbrows(); i++){
                 for (int k = 0; k < getRow_constraints(i).length; k++){
@@ -122,6 +131,7 @@ public class picrossSlv extends picross{
                 }
             }
 
+            // NOTE : (1H)
             // Test : stack leftmost task
             for (int j = 0; j < getNbcols(); j++){
                 for (int k = 0; k < getCol_constraints(j).length; k++){
@@ -133,6 +143,7 @@ public class picrossSlv extends picross{
                 }
             }
 
+            // NOTE : (1I)
             // Test : stack rightmost
             for (int i = 0; i < getNbrows(); i++){
                 for (int k = 0; k < getRow_constraints(i).length; k++){
@@ -144,6 +155,7 @@ public class picrossSlv extends picross{
                 }
             }
 
+            // NOTE : (1J)
             // Test : stack rightmost
             for (int j = 0; j < getNbcols(); j++){
                 for (int k = 0; k < getCol_constraints(j).length; k++){
@@ -155,10 +167,12 @@ public class picrossSlv extends picross{
                 }
             }
 
+
             for (int i = 0; i < getNbrows(); i++){
                 for (int ki = 0; ki < getRow_constraints(i).length; ki++){
                     for (int j = 0; j < getNbcols(); j++){
                         if (j > 0) {
+                            // NOTE : (1K)
                             solver.add(
                                     solver.ifThen(
                                             solver.eq(X[i][ki], j),
@@ -166,6 +180,7 @@ public class picrossSlv extends picross{
                                     )
                             );
                         }
+                        // NOTE : (1M)
                         if (j + getRow_constraints(i)[ki] < getNbcols()){
                             solver.add(solver.ifThen(
                                     solver.eq(X[i][ki], j),
@@ -180,12 +195,14 @@ public class picrossSlv extends picross{
                 for (int kj = 0; kj < getCol_constraints(j).length; kj++){
                     for (int i = 0; i < getNbrows(); i++){
                         if (i > 0){
+                            // NOTE : (1L)
                             solver.add(solver.ifThen(
                                     solver.eq(Y[j][kj], i),
                                     solver.eq(grid[i-1][j], 0)
                             ));
                         }
 
+                        // NOTE : (1N)
                         if (i + getCol_constraints(j)[kj] < getNbrows()){
                             solver.add(solver.ifThen(
                                     solver.eq(Y[j][kj], i),
@@ -195,6 +212,8 @@ public class picrossSlv extends picross{
                     }
                 }
             }
+
+
 
         } catch (IloException e){
             e.printStackTrace();
@@ -220,6 +239,8 @@ public class picrossSlv extends picross{
                 System.out.println();
             }
             System.out.println(count_unfixed_vars + " cells are undetermined.");
+            double ratio = (double) count_unfixed_vars / (grid.length * grid[0].length);
+            System.out.println("Undetermined ratio : " + ratio);
 
             solver.printInformation();
         } catch (IloException e){
@@ -240,8 +261,8 @@ public class picrossSlv extends picross{
                 }
             }
 
-            // int nbFails = solver.getInfo(IloCP.IntInfo.NumberOfFails);
-            // System.out.println("Number of fails : " + nbFails);
+            int nbFails = solver.getInfo(IloCP.IntInfo.NumberOfFails);
+            System.out.println("Number of fails : " + nbFails);
         } catch (IloException e){
             e.printStackTrace();
         }

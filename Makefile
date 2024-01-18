@@ -50,7 +50,8 @@ solve: buildsolver
 	@$(JAVA) -Xmx1024M -Xms1024M $(JOPT) -cp $(OPLALL):$(GLOBALLIBRARY):$(SRCDIR) picrossSlv $(GRID)
 
 benchmark: buildsolver
-	@clear; for grid in picross/*.px; do echo Running solver on file "$$grid"...; $(JAVA) $(JOPT) -cp $(OPLALL):$(GLOBALLIBRARY):$(SRCDIR) picrossSlv "$$grid"; echo; done
+	@clear; for grid in picross/*.px; do echo Running solver on file "$$grid"...; timeout 10 $(JAVA) $(JOPT) -cp $(OPLALL):$(GLOBALLIBRARY):$(SRCDIR) picrossSlv "$$grid"; echo; done
+
 
 clean:
 	@rm -f $(SRCDIR)/*.class
