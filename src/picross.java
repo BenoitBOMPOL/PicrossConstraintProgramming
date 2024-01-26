@@ -1,5 +1,4 @@
 import java.io.*;
-import java.util.Arrays;
 
 public class picross {
     private int nbrows;    // Numbers of rows in the picross
@@ -68,67 +67,9 @@ public class picross {
         bread.close();
     }
 
-    public boolean is_a_valid_sol(int[][] sol){
-        OneLineSolver ats = null;
-        for (int i = 0; i < nbrows; i++){
-            ats = new OneLineSolver(getRow_constraints(i), nbcols);
-            if (!ats.is_valid(sol[i])){
-                return false;
-            }
-        }
-
-        for (int j = 0; j < nbcols; j++){
-            ats = new OneLineSolver(getCol_constraints(j), nbrows);
-            int[] col = new int[nbrows];
-            for (int i = 0; i < nbrows; i++){
-                col[i] = sol[i][j];
-            }
-            if (!ats.is_valid(col)){
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public void show_instance_info(){
-        System.out.println("There are " + getNbrows() + " rows and " + getNbcols() + " columns.");
-        System.out.println("+++ Constraint on rows +++");
-        for (int i = 0; i < getNbrows(); i++){
-            System.out.println("\tRow no." + i + " : " + Arrays.toString(getRow_constraints(i)));
-        }
-        System.out.println("+++ Constraint on cols +++");
-        for (int j = 0; j < getNbcols(); j++){
-            System.out.println("\tCol no." + j + " : " + Arrays.toString(getCol_constraints(j)));
-        }
-    }
-
-    public void show_heap_tuples(){
-        int nb_tuple_stored = 0;
-        for (int i = 0; i < getNbrows(); i++){
-            int[] constraints = getRow_constraints(i);
-            OneLineSolver ats = new OneLineSolver(constraints, getNbcols());
-            int [][] solutions = ats.getAllSolutions();
-            int nb_solutions = solutions.length;
-            nb_tuple_stored += solutions.length;
-            System.out.println("For row no. " + i + ", " + nb_solutions + " were stored.");
-        }
-        System.out.println();
-        for (int j = 0; j < getNbcols(); j++){
-            int[] constraints = getCol_constraints(j);
-            OneLineSolver ats = new OneLineSolver(constraints, getNbrows());
-            int [][] solutions = ats.getAllSolutions();
-            int nb_solutions = solutions.length;
-            nb_tuple_stored += solutions.length;
-            System.out.println("For col no. " + j + ", " + nb_solutions + " were stored.");
-        }
-        System.out.println();
-        System.out.println("In total, " + nb_tuple_stored + " tuples were stored.");
-    }
     public static void main(String[] args) throws Exception {
         String filename = args[0];
-        picross bird = new picross(filename);
+        picross instance = new picross(filename);
 
-        bird.show_instance_info();
-        bird.show_heap_tuples();
     }
 }
